@@ -2,7 +2,7 @@
 
 个人主页，部署于 `nianan.site` 根域名（静态托管，零常驻进程）。
 
-选型论证与分期计划见 `../个人主页-技术选型与实施计划.md`；部署拓扑（与 `qa.nianan.site` 共存）见 `../rag-qa-system/docs/部署方案-子域名.md`。
+选型论证与分期计划见 [docs/选型与实施计划.md](docs/选型与实施计划.md)，进度总览见 [docs/PLAN.md](docs/PLAN.md)，部署拓扑（与 `qa.nianan.site` 共存）见 `../rag-qa-system/docs/部署方案-子域名.md`。
 
 ## 技术栈
 

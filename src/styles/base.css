@@ -57,3 +57,26 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Hero 滚动提示：一个亮点沿竖线上下走。
+   用 CSS 而不是 JS 动画，是为了不让这个纯装饰元素占用主线程。 */
+@keyframes na-scroll-hint {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(36px);
+    opacity: 0;
+  }
+}
+
+.na-scroll-hint {
+  animation: na-scroll-hint 2.4s var(--ease-soft) infinite;
+}
