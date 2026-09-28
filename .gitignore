@@ -1,0 +1,14 @@
+node_modules/
+dist/
+dist-ssr/
+*.local
+.DS_Store
+.vite/
+
+# 沙箱里 pnpm 的 symlink 策略跑不通，临时用 npm 装过依赖；
+# 项目本身以 pnpm 为准，npm 的 lock 文件不入库。
+package-lock.json
+
+.env
+.env.*
+!.env.example

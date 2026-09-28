@@ -1,0 +1,59 @@
+/* 基础层：只放全站生效的兜底样式，不放任何区块样式。 */
+
+@layer base {
+  html {
+    color-scheme: dark;
+    /* 不设 scroll-behavior: smooth —— 后续接 Lenis 惯性滚动会打架 */
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background-color: var(--color-canvas);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-canvas);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  /* 暗色滚动条：默认亮色滚动条在近黑背景上非常突兀 */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-strong) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: var(--color-line-strong);
+    border-radius: 999px;
+  }
+}
+
+/* 全站动效兜底：只要用户系统开了「减弱动态效果」，所有动画一律降级为直出。
+   这条是硬要求，不是可选项 —— 前庭功能敏感的用户会被视差动效直接劝退。 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
