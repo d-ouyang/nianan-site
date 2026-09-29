@@ -105,47 +105,47 @@ export function useScrollSystem(): SectionId | null {
     };
   }, []);
 
-  // 2) 当前区块判定。
-  //    ⚠️ 与上面的 Lenis 分开：区块高亮和 URL hash 跟「要不要平滑滚动」无关，
-  //    之前把它俩写在一个 effect 里，导致 reduced-motion 用户整个导航都是死的（高亮不动、hash 不更新）。
-  //    用 ScrollTrigger 而不是 IntersectionObserver，是因为 P0-4 的滚动叙事与
-  //    P1-6 的路径绘制都要靠它，一套滚动观测比两套好维护。
+  // 2) 当前区块判定 —— 用「哪个区块跨过视口中线」来定当前 tab。
+  //    ⚠️ 原先的 ScrollTrigger `top center`/`bottom center` + `onToggle` 对第一个区块（hero）
+  //    和首帧布局未稳时极不可靠：首屏经常把 about 误判为 active，hero 永远不会高亮、滚回顶部也还是 about。
+  //    改用视口中线命中检测后，首屏、滚回顶部、滚到任意区块都稳定。
+  //    这条判定与 Lenis 解耦：reduced-motion 用户（跳过 Lenis）导航照常工作。
   useEffect(() => {
-    let disposed = false;
-    let cleanup: (() => void) | undefined;
+    const compute = () => {
+      const mid = (window.innerHeight || 1) / 2;
+      let current: SectionId | null = null;
+      // 优先：有区块正好跨过中线
+      for (const s of SECTIONS) {
+        const el = document.getElementById(s.id);
+        if (!el) continue;
+        const r = el.getBoundingClientRect();
+        if (r.top <= mid && r.bottom >= mid) {
+          current = s.id;
+          break;
+        }
+      }
+      // 兜底：中线落在区块间隙时，取最后一个顶端已经越过中线的区块
+      if (!current) {
+        for (const s of SECTIONS) {
+          const el = document.getElementById(s.id);
+          if (!el) continue;
+          if (el.getBoundingClientRect().top < mid) current = s.id;
+        }
+      }
+      setActive(current);
+    };
 
-    void (async () => {
-      const [gsapMod, stMod] = await Promise.all([
-        import('gsap'),
-        import('gsap/ScrollTrigger'),
-      ]);
-      if (disposed) return;
-
-      const gsap = gsapMod.default;
-      const { ScrollTrigger } = stMod;
-      gsap.registerPlugin(ScrollTrigger);
-
-      const triggers = SECTIONS.map((section) =>
-        ScrollTrigger.create({
-          trigger: `#${section.id}`,
-          // 区块中心越过视口中心时才切换 —— 用 top/bottom 边界会在大区块上过早或过晚跳变
-          start: 'top center',
-          end: 'bottom center',
-          onToggle: (self: { isActive: boolean }) => {
-            if (self.isActive) setActive(section.id);
-          },
-        }),
-      );
-
-      // 首次进入先算一次，避免要等用户滚动才亮起第一个区块
-      ScrollTrigger.refresh();
-
-      cleanup = () => triggers.forEach((t) => t.kill());
-    })();
+    compute();
+    const raf = requestAnimationFrame(compute);
+    window.addEventListener('scroll', compute, { passive: true });
+    window.addEventListener('resize', compute);
+    window.addEventListener('load', compute);
 
     return () => {
-      disposed = true;
-      cleanup?.();
+      cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', compute);
+      window.removeEventListener('resize', compute);
+      window.removeEventListener('load', compute);
     };
   }, []);
 

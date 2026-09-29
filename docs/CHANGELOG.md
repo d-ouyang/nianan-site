@@ -10,6 +10,7 @@
 
 | 版本 | 日期 | 内容 | commit |
 |---|---|---|---|
+| 0.5.0 | 2026-09-29 | P0-4b Hero 交互收口：SplashCursor 鼠标流体特效（限定 Hero 内）、Dock 高亮修复（补 #hero id + 中线判定）、移除滚动提示 | （见 git log） |
 | 0.4.0 | 2026-09-29 | P0-4 reactbits 动效层：MicroSlats 交互式 Hero 背景，替换 Aurora，单一强调色 | （见 git log） |
 | 0.3.0 | 2026-09-29 | P0-3 滚动与导航：Lenis + ScrollTrigger 对接、Dock、进度条、hash 同步 | `9967794` |
 | 0.2.0 | 2026-09-28 | P0-2 Hero：Aurora shader 背景 + 名字逐字揭示 + 双路降级 | `96f4c7c` |

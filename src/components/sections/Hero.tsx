@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { motion } from 'motion/react';
 import MicroSlats from '@/components/bits/MicroSlats';
+import SplashCursor from '@/components/bits/SplashCursor';
 import { canRunWebGL } from '@/lib/capabilities';
 
 const NAME = '欧阳鼎';
@@ -25,23 +26,27 @@ export default function Hero() {
   const useShader = useMemo(() => canRunWebGL(), []);
 
   return (
-    <section className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-canvas">
+    <section id="hero" className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-canvas">
       {/* 背景层：MicroSlats 交互式流体 slats 替换原极光；无 WebGL2 时降级为静态辉光 */}
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
         {useShader ? (
-          <div className="absolute inset-0">
-            <MicroSlats
-              className="h-full w-full"
-              preset="swell"
-              color="#00E0A4"
-              glintColor="#9dffe6"
-              backgroundColor="#09090B"
-              interactive
-              intro
-              cursorStrength={1.1}
-              lean={0.4}
-            />
-          </div>
+          <>
+            <div className="absolute inset-0">
+              <MicroSlats
+                className="h-full w-full"
+                preset="swell"
+                color="#00E0A4"
+                glintColor="#9dffe6"
+                backgroundColor="#09090B"
+                interactive
+                intro
+                cursorStrength={1.1}
+                lean={0.4}
+              />
+            </div>
+            {/* 鼠标流体特效：限制在首页范围内，单一强调色，离屏自动暂停 */}
+            <SplashCursor RAINBOW_MODE={false} COLOR="#00E0A4" DYE_RESOLUTION={1024} />
+          </>
         ) : (
           <StaticGlow />
         )}
@@ -87,14 +92,6 @@ export default function Hero() {
         >
           {TAGLINE}
         </motion.p>
-      </div>
-
-      {/* 滚动提示：纯 CSS 动画，不占 JS 主线程 */}
-      <div
-        className="relative z-10 mt-24 h-12 w-px bg-line-strong"
-        aria-hidden="true"
-      >
-        <span className="na-scroll-hint absolute inset-x-0 top-0 h-3 bg-accent" />
       </div>
     </section>
   );
