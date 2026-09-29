@@ -80,3 +80,23 @@
 .na-scroll-hint {
   animation: na-scroll-hint 2.4s var(--ease-soft) infinite;
 }
+
+/* Lenis 接管滚动所需的样式。官方是给一个 lenis.css，这里内联进来少一次请求。
+   关键一条是 .lenis-smooth 下的 scroll-behavior: auto —— 浏览器原生平滑滚动
+   和 Lenis 的插值会互相抢，结果就是「滚一下弹一下」。 */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}

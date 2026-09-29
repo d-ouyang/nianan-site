@@ -10,5 +10,6 @@
 
 | 版本 | 日期 | 内容 | commit |
 |---|---|---|---|
-| 0.2.0 | 2026-09-28 | P0-2 Hero：Aurora shader 背景 + 名字逐字揭示 + 双路降级 | （见 git log） |
+| 0.3.0 | 2026-09-29 | P0-3 滚动与导航：Lenis + ScrollTrigger 对接、Dock、进度条、hash 同步 | （见 git log） |
+| 0.2.0 | 2026-09-28 | P0-2 Hero：Aurora shader 背景 + 名字逐字揭示 + 双路降级 | `96f4c7c` |
 | 0.1.0 | 2026-09-28 | P0-1 项目骨架：Vite/React19/TS/Tailwind v4 + 设计令牌 | `23840e3` |

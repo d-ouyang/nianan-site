@@ -24,5 +24,22 @@ export default defineConfig({
     target: 'es2022',
     // 构建产物带 hash，可长缓存；index.html 由 nginx 单独禁缓存
     assetsDir: 'assets',
+    rollupOptions: {
+      output: {
+        // 按库拆分：这些依赖版本稳定、几乎不变，单独成 chunk 后
+        // 改业务代码不会让用户重新下载它们（缓存命中率高一大截）。
+        // 用函数式而不是对象式：对象式只匹配包入口，react-dom/client 这类子路径
+        // 会漏掉，结果 react-dom 仍被打进业务 chunk（index 里看不到它但体积没少）。
+        manualChunks(id: string) {
+          if (!id.includes('node_modules')) return;
+          if (id.includes('react-dom') || id.includes('/react/')) return 'react';
+          if (id.includes('motion') || id.includes('framer')) return 'motion';
+          if (id.includes('gsap')) return 'gsap';
+          if (id.includes('ogl')) return 'ogl';
+          if (id.includes('lenis')) return 'lenis';
+          return 'vendor';
+        },
+      },
+    },
   },
 });

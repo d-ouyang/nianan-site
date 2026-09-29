@@ -8,7 +8,7 @@
 |---|---|---|---|
 | P0-1 | 项目骨架 + 设计令牌 | ✅ 完成 | 0.1.0 |
 | P0-2 | Hero 区（shader + 逐字揭示 + 降级） | ✅ 完成 | 0.2.0 |
-| P0-3 | 滚动与导航系统（Lenis + ScrollTrigger + Dock） | ⬜ 未开始 | — |
+| P0-3 | 滚动与导航系统（Lenis + ScrollTrigger + Dock） | ✅ 完成 | 0.3.0 |
 | P0-4 | About / Skills / Projects 三区 | ⬜ 未开始 | — |
 | P0-5 | 部署上线（rsync + 边缘 nginx + 证书） | ⬜ 未开始 | — |
 | P1-6 | Timeline（SVG 路径绘制） | ⬜ | — |

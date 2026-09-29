@@ -8,7 +8,8 @@
 
 - Vite 7 + React 19 + TypeScript（strict）
 - Tailwind CSS v4（`@tailwindcss/vite`，CSS-first 配置）
-- 动效（按期引入，不提前装）：motion / GSAP + ScrollTrigger / Lenis / ogl
+- 动效：ogl（Hero 背景）+ motion（UI 动画）+ GSAP ScrollTrigger & Lenis（滚动，动态加载）
+- 区块注册表 `src/lib/sections.ts` 是导航的唯一数据源；加区块只改这里
 
 ## 命令
 
