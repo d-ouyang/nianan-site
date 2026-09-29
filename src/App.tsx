@@ -12,9 +12,9 @@ export default function App() {
     <main className="bg-canvas">
       <ScrollProgress />
 
-      <Hero />
+      <Hero active={active} />
       {CONTENT_SECTIONS.map((section) => (
-        <Stub key={section.id} id={section.id} label={section.label} fluid={section.id === 'about'} />
+        <Stub key={section.id} id={section.id} label={section.label} fluid={section.id === 'about'} active={active} />
       ))}
 
       <Dock active={active} />

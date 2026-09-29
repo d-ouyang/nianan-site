@@ -3,11 +3,12 @@ import { motion } from 'motion/react';
 import MicroSlats from '@/components/bits/MicroSlats';
 import SplashCursor from '@/components/bits/SplashCursor';
 import { canRunWebGL } from '@/lib/capabilities';
+import type { SectionId } from '@/lib/sections';
 
 const NAME = '欧阳鼎';
 const TAGLINE = '前端 · AI Agent 工程 · 科幻写作';
 
-/** WebGL 不可用时的静态降级：同色相的一次性辉光，不跑 shader */
+/** WebGL 不可用 / 非当前屏时的静态降级：同色相的一次性辉光，不跑 shader */
 function StaticGlow() {
   return (
     <div
@@ -20,16 +21,26 @@ function StaticGlow() {
   );
 }
 
-export default function Hero() {
+/**
+ * `active`：当前滚动命中的区块（来自 useScrollSystem）。
+ *
+ * ⚠️ 关键修复（v0.5.2）：本屏的 WebGL 背景（MicroSlats + SplashCursor）只在「本屏是当前屏」
+ * 时才挂载。一旦滚走，组件卸载 → cleanup 释放 WebGL 上下文。否则首屏与「关于」屏各持一个
+ * WebGL2 上下文常驻，多上下文会耗尽 GPU 上下文资源，导致后挂载的特效（关于屏的 SplashCursor）
+ * 静默拿不到可用的渲染目标格式、直接 no-op —— 表现就是「关于屏鼠标流体毫无效果、还零报错」。
+ * 独占挂载后，任一时刻最多只有一个重负载 WebGL2 特效存活，关于屏独占 GPU，流体必出。
+ */
+export default function Hero({ active }: { active?: SectionId | null }) {
   // 只在挂载时判断一次：页面加载时的视口与系统设置决定走 shader 还是静态渐变，
   // 中途拉伸窗口不重新初始化（重新创建 WebGL 上下文的代价远大于收益）。
   const useShader = useMemo(() => canRunWebGL(), []);
+  const showShader = useShader && active === 'hero';
 
   return (
     <section id="hero" className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-canvas">
-      {/* 背景层：MicroSlats 交互式流体 slats 替换原极光；无 WebGL2 时降级为静态辉光 */}
+      {/* 背景层：MicroSlats 交互式流体 slats + 鼠标流体；仅在本屏（active===hero）挂载，离开后卸载以释放上下文 */}
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-        {useShader ? (
+        {showShader ? (
           <>
             <div className="absolute inset-0">
               <MicroSlats

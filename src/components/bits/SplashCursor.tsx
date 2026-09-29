@@ -156,47 +156,49 @@ export default function SplashCursor({
       const isWebGL2 = 'drawBuffers' in gl;
 
       let supportLinearFiltering = false;
-      let halfFloat: OES_texture_half_float | null = null;
-
-      if (isWebGL2) {
-        (gl as WebGL2RenderingContext).getExtension('EXT_color_buffer_float');
-        supportLinearFiltering = !!(gl as WebGL2RenderingContext).getExtension('OES_texture_float_linear');
-      } else {
-        halfFloat = gl.getExtension('OES_texture_half_float');
-        supportLinearFiltering = !!gl.getExtension('OES_texture_half_float_linear');
-      }
-
-      gl.clearColor(0, 0, 0, 1);
-
-      const halfFloatTexType = isWebGL2
-        ? (gl as WebGL2RenderingContext).HALF_FLOAT
-        : (halfFloat && halfFloat.HALF_FLOAT_OES) || 0;
+      let halfFloatTexType: number;
 
       let formatRGBA: TextureFormat | null;
       let formatRG: TextureFormat | null;
       let formatR: TextureFormat | null;
 
       if (isWebGL2) {
-        formatRGBA = getSupportedFormat(gl, (gl as WebGL2RenderingContext).RGBA16F, gl.RGBA, halfFloatTexType);
-        formatRG = getSupportedFormat(
-          gl,
-          (gl as WebGL2RenderingContext).RG16F,
-          (gl as WebGL2RenderingContext).RG,
-          halfFloatTexType
-        );
-        formatR = getSupportedFormat(
-          gl,
-          (gl as WebGL2RenderingContext).R16F,
-          (gl as WebGL2RenderingContext).RED,
-          halfFloatTexType
-        );
+        (gl as WebGL2RenderingContext).getExtension('EXT_color_buffer_float');
+        const hf = (gl as WebGL2RenderingContext).HALF_FLOAT;
+        const rgba = getSupportedFormat(gl, (gl as WebGL2RenderingContext).RGBA16F, gl.RGBA, hf);
+        const rg = getSupportedFormat(gl, (gl as WebGL2RenderingContext).RG16F, (gl as WebGL2RenderingContext).RG, hf);
+        const r = getSupportedFormat(gl, (gl as WebGL2RenderingContext).R16F, (gl as WebGL2RenderingContext).RED, hf);
+        if (rgba && rg && r) {
+          // 首选 float 渲染目标：流体模拟质量最好
+          formatRGBA = rgba;
+          formatRG = rg;
+          formatR = r;
+          halfFloatTexType = hf;
+          supportLinearFiltering = !!(gl as WebGL2RenderingContext).getExtension('OES_texture_float_linear');
+        } else {
+          // ⚠️ float 渲染目标不可用（部分 Safari / ANGLE / 弱机 / 多上下文资源受限会走到这）：
+          // 降级 8-bit，保证「有可见效果」而不是静默空白。质量下降但墨点仍可见。
+          formatRGBA = getSupportedFormat(gl, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE);
+          formatRG = getSupportedFormat(gl, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE);
+          formatR = getSupportedFormat(gl, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE);
+          halfFloatTexType = gl.UNSIGNED_BYTE;
+          supportLinearFiltering = true; // 8-bit 线性过滤是 WebGL 核心能力
+          console.info('[SplashCursor] WebGL2 float 渲染目标不可用，降级为 8-bit（效果可见但质量下降）');
+        }
       } else {
+        // WebGL1 路径：沿用原 half-float 探测
+        const halfFloat = gl.getExtension('OES_texture_half_float');
+        halfFloatTexType = (halfFloat && halfFloat.HALF_FLOAT_OES) || gl.UNSIGNED_BYTE;
+        supportLinearFiltering = !!gl.getExtension('OES_texture_half_float_linear');
         formatRGBA = getSupportedFormat(gl, gl.RGBA, gl.RGBA, halfFloatTexType);
         formatRG = getSupportedFormat(gl, gl.RGBA, gl.RGBA, halfFloatTexType);
         formatR = getSupportedFormat(gl, gl.RGBA, gl.RGBA, halfFloatTexType);
       }
 
+      gl.clearColor(0, 0, 0, 1);
+
       if (!formatRGBA || !formatRG || !formatR) {
+        console.warn('[SplashCursor] 当前浏览器/设备不支持任何可用的渲染目标格式，鼠标流体特效已禁用');
         return null;
       }
 
