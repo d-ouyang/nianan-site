@@ -1175,7 +1175,9 @@ export default function SplashCursor({
       const r = parseInt(val.slice(0, 2), 16) / 255;
       const g = parseInt(val.slice(2, 4), 16) / 255;
       const b = parseInt(val.slice(4, 6), 16) / 255;
-      return { r: r * 0.15, g: g * 0.15, b: b * 0.15 };
+      // ⚠️ 原 reactbits 默认是 *0.15，在深色底上几乎看不见；提到 0.42 让墨点清晰可读，
+      // 仍是单一强调色 #00E0A4，不引入第二个色相。
+      return { r: r * 0.42, g: g * 0.42, b: b * 0.42 };
     }
 
     function generateColor(): ColorRGB {

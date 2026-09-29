@@ -14,7 +14,7 @@ export default function App() {
 
       <Hero />
       {CONTENT_SECTIONS.map((section) => (
-        <Stub key={section.id} id={section.id} label={section.label} />
+        <Stub key={section.id} id={section.id} label={section.label} fluid={section.id === 'about'} />
       ))}
 
       <Dock active={active} />

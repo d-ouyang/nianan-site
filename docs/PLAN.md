@@ -11,6 +11,7 @@
 | P0-3 | 滚动与导航系统（Lenis + ScrollTrigger + Dock） | ✅ 完成 | 0.3.0 |
 | P0-4 | reactbits 动效层：MicroSlats Hero 背景 | ✅ 完成 | 0.4.0 |
 | P0-4b | Hero 交互收口：SplashCursor 鼠标流体 + Dock 高亮修复 + 去滚动提示 | ✅ 完成 | 0.5.0 |
+| P0-4b·补 | 流体特效扩展到「关于」屏 + splat 可见度 0.15→0.42 | ✅ 完成 | 0.5.1 |
 | P0-5 | About / Skills / Projects 三区 | ⬜ 未开始 | — |
 | P0-6 | 部署上线（rsync + 边缘 nginx + 证书） | ⬜ 未开始 | — |
 | P1-7 | Timeline（SVG 路径绘制） | ⬜ | — |
