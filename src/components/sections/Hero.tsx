@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { motion } from 'motion/react';
-import Aurora from '@/components/bits/Aurora';
+import MicroSlats from '@/components/bits/MicroSlats';
 import { canRunWebGL } from '@/lib/capabilities';
 
 const NAME = '欧阳鼎';
@@ -26,11 +26,27 @@ export default function Hero() {
 
   return (
     <section className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-canvas">
-      {/* 背景层 */}
+      {/* 背景层：MicroSlats 交互式流体 slats 替换原极光；无 WebGL2 时降级为静态辉光 */}
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-        {useShader ? <Aurora amplitude={1.0} blend={0.5} speed={1.0} /> : <StaticGlow />}
-        {/* 压暗 + 底部渐隐：既保证文字可读，也让极光与下一屏之间不出现硬边 */}
-        <div className="absolute inset-0 bg-canvas/35" />
+        {useShader ? (
+          <div className="absolute inset-0">
+            <MicroSlats
+              className="h-full w-full"
+              preset="swell"
+              color="#00E0A4"
+              glintColor="#9dffe6"
+              backgroundColor="#09090B"
+              interactive
+              intro
+              cursorStrength={1.1}
+              lean={0.4}
+            />
+          </div>
+        ) : (
+          <StaticGlow />
+        )}
+        {/* 中心暗角：保证标题可读；底部渐隐：与下一屏自然过渡 */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgb(9_9_11/0.5),transparent_62%)]" />
         <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-b from-transparent to-canvas" />
       </div>
 
