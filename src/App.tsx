@@ -1,5 +1,6 @@
 import Hero from '@/components/sections/Hero';
 import Stub from '@/components/sections/Stub';
+import Footer from '@/components/sections/Footer';
 import Dock from '@/components/ui/Dock';
 import ScrollProgress from '@/components/ui/ScrollProgress';
 import { useScrollSystem } from '@/hooks/useScrollSystem';
@@ -16,6 +17,8 @@ export default function App() {
       {CONTENT_SECTIONS.map((section) => (
         <Stub key={section.id} id={section.id} label={section.label} fluid={section.id === 'about'} active={active} />
       ))}
+
+      <Footer />
 
       <Dock active={active} />
     </main>
