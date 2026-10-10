@@ -1,14 +1,17 @@
 import { useMemo } from 'react';
-import { motion } from 'motion/react';
 import MicroSlats from '@/components/bits/MicroSlats';
-import SplashCursor from '@/components/bits/SplashCursor';
+import TechText from '@/components/bits/TechText';
+import { profile } from '@/content/profile';
 import { canRunWebGL } from '@/lib/capabilities';
-import type { SectionId } from '@/lib/sections';
+import { scrollToId } from '@/hooks/useScrollSystem';
 
-const NAME = '欧阳鼎';
-const TAGLINE = '前端 · AI Agent 工程 · 科幻写作';
+const JUMPS = [
+  { id: 'skills', label: '技能' },
+  { id: 'projects', label: '项目' },
+  { id: 'experience', label: '工作经历' },
+] as const;
 
-/** WebGL 不可用 / 非当前屏时的静态降级：同色相的一次性辉光，不跑 shader */
+/** WebGL 不可用时的静态降级：同色相的一次性辉光，不跑 shader */
 function StaticGlow() {
   return (
     <div
@@ -22,87 +25,77 @@ function StaticGlow() {
 }
 
 /**
- * `active`：当前滚动命中的区块（来自 useScrollSystem）。
+ * 整页背景，固定在视口上。
  *
- * ⚠️ 关键修复（v0.5.2）：本屏的 WebGL 背景（MicroSlats + SplashCursor）只在「本屏是当前屏」
- * 时才挂载。一旦滚走，组件卸载 → cleanup 释放 WebGL 上下文。否则首屏与「关于」屏各持一个
- * WebGL2 上下文常驻，多上下文会耗尽 GPU 上下文资源，导致后挂载的特效（关于屏的 SplashCursor）
- * 静默拿不到可用的渲染目标格式、直接 no-op —— 表现就是「关于屏鼠标流体毫无效果、还零报错」。
- * 独占挂载后，任一时刻最多只有一个重负载 WebGL2 特效存活，关于屏独占 GPU，流体必出。
+ * 下面的经历 / 技能 / 项目 / 联系都不铺自己的底色，滚到哪都还是这一层动效。
+ * 画布保持挂载：卸掉再重建容易拿不到 WebGL 上下文，动效会消失且回不来。
  */
-export default function Hero({ active }: { active?: SectionId | null }) {
-  // 只在挂载时判断一次：页面加载时的视口与系统设置决定走 shader 还是静态渐变，
-  // 中途拉伸窗口不重新初始化（重新创建 WebGL 上下文的代价远大于收益）。
+export function HeroBackdrop() {
   const useShader = useMemo(() => canRunWebGL(), []);
-  const showShader = useShader && active === 'hero';
 
   return (
-    <section id="hero" className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden bg-canvas">
-      {/* 背景层：MicroSlats 交互式流体 slats + 鼠标流体；仅在本屏（active===hero）挂载，离开后卸载以释放上下文 */}
-      <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-        {showShader ? (
-          <>
-            <div className="absolute inset-0">
-              <MicroSlats
-                className="h-full w-full"
-                preset="swell"
-                color="#00E0A4"
-                glintColor="#9dffe6"
-                backgroundColor="#09090B"
-                interactive
-                intro
-                cursorStrength={1.1}
-                lean={0.4}
-              />
-            </div>
-            {/* 鼠标流体特效：限制在首页范围内，单一强调色，离屏自动暂停 */}
-            <SplashCursor RAINBOW_MODE={false} COLOR="#00E0A4" DYE_RESOLUTION={1024} />
-          </>
-        ) : (
-          <StaticGlow />
-        )}
-        {/* 中心暗角：保证标题可读；底部渐隐：与下一屏自然过渡 */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgb(9_9_11/0.5),transparent_62%)]" />
-        <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-b from-transparent to-canvas" />
-      </div>
+    <div className="pointer-events-none fixed inset-0 z-0" aria-hidden="true">
+      {useShader ? (
+        <>
+          <MicroSlats
+            className="h-full w-full"
+            preset="swell"
+            color="#00E0A4"
+            glintColor="#9dffe6"
+            backgroundColor="#09090B"
+            interactive
+            intro
+            cursorStrength={1.1}
+            lean={0.4}
+          />
+        </>
+      ) : (
+        <StaticGlow />
+      )}
+    </div>
+  );
+}
 
-      {/* 内容层 */}
-      <div className="relative z-10 flex flex-col items-center px-6 text-center">
-        <motion.p
-          className="font-mono text-xs uppercase tracking-[0.22em] text-accent"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-        >
-          nianan.site
-        </motion.p>
+export default function Hero() {
+  return (
+    <section id="hero" className="relative h-dvh overflow-hidden">
 
-        <h1 className="mt-5 text-hero font-medium tracking-tight">
-          {NAME.split('').map((char, i) => (
-            <motion.span
-              key={`${char}-${i}`}
-              className="inline-block"
-              initial={{ opacity: 0, y: '0.35em', filter: 'blur(10px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              transition={{
-                delay: 0.18 + i * 0.09,
-                duration: 0.85,
-                ease: [0.16, 1, 0.3, 1],
-              }}
-            >
-              {char}
-            </motion.span>
-          ))}
-        </h1>
-
-        <motion.p
-          className="mt-5 text-base text-muted"
-          initial={{ opacity: 0, y: '0.6em' }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-        >
-          {TAGLINE}
-        </motion.p>
+      <div className="relative z-10 flex h-full w-full items-center overflow-y-auto px-6 py-28">
+        <div className="mx-auto w-full max-w-5xl">
+        <div className="w-full max-w-xl rounded-3xl bg-canvas/35 p-6 backdrop-blur-sm sm:p-8">
+          <p className="font-mono text-xs tracking-[0.18em] text-accent uppercase">{profile.site}</p>
+          <h1 className="mt-3 h-28 sm:h-32">
+            <TechText
+              text={profile.name}
+              className="font-sans"
+              color="#5CFFD0"
+              accentColor="#ECECEE"
+              fontWeight={500}
+              fontSize={150}
+              letterSpacing={-0.03}
+              reveal="letter"
+              dashLength={4}
+              dashGap={2}
+              specks={15}
+              align="left"
+              draggable={false}
+            />
+          </h1>
+          <p className="text-base text-fg sm:text-lg">{profile.role}</p>
+          <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2">
+            {JUMPS.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => scrollToId(item.id)}
+                className="text-sm text-accent transition-colors hover:text-fg"
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        </div>
       </div>
     </section>
   );

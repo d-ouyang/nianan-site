@@ -12,10 +12,9 @@ export interface SectionMeta {
 
 export const SECTIONS = [
   { id: 'hero', label: '首页' },
-  { id: 'about', label: '关于' },
   { id: 'skills', label: '技能' },
-  { id: 'projects', label: '作品' },
-  { id: 'timeline', label: '经历' },
+  { id: 'projects', label: '项目' },
+  { id: 'experience', label: '经历' },
   { id: 'contact', label: '联系' },
 ] as const satisfies readonly SectionMeta[];
 

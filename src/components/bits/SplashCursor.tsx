@@ -195,7 +195,7 @@ export default function SplashCursor({
         formatR = getSupportedFormat(gl, gl.RGBA, gl.RGBA, halfFloatTexType);
       }
 
-      gl.clearColor(0, 0, 0, 1);
+      gl.clearColor(0, 0, 0, 0);
 
       if (!formatRGBA || !formatRG || !formatR) {
         console.warn('[SplashCursor] 当前浏览器/设备不支持任何可用的渲染目标格式，鼠标流体特效已禁用');
@@ -682,13 +682,19 @@ export default function SplashCursor({
         if (!target) {
           gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
           gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+          // 画到屏幕前先清成全透明。否则空的流体画布会留下一块不透明白底，把首页背景整屏盖住。
+          const blending = gl.isEnabled(gl.BLEND);
+          gl.disable(gl.BLEND);
+          gl.clearColor(0, 0, 0, 0);
+          gl.clear(gl.COLOR_BUFFER_BIT);
+          if (blending) gl.enable(gl.BLEND);
         } else {
           gl.viewport(0, 0, target.width, target.height);
           gl.bindFramebuffer(gl.FRAMEBUFFER, target.fbo);
-        }
-        if (doClear) {
-          gl.clearColor(0, 0, 0, 1);
-          gl.clear(gl.COLOR_BUFFER_BIT);
+          if (doClear) {
+            gl.clearColor(0, 0, 0, 1);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+          }
         }
         gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
       };

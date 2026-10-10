@@ -16,7 +16,7 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="relative border-t border-line/60 px-4 pt-10 pb-24 sm:pt-12 sm:pb-28">
+    <footer className="relative bg-canvas px-4 pt-10 pb-24 sm:pt-12 sm:pb-28">
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6">
         <p className="text-xs text-muted">© {year} 欧阳鼎</p>
 

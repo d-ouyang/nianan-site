@@ -10,11 +10,11 @@
  *
  * 2) **GSAP 走动态 import**。它 gzip 45KB，是全部依赖里最重的一块，而首屏根本用不到
  *    （没人一进页面就滚动）。按需加载后首屏 JS 从 183KB 降到 137KB。
- *    代价是「加载完成前点 Dock 锚点」会回落到原生跳转（不丝滑但仍可用），
- *    这个降级是安全的，因为 Lenis 未就绪时本来就不该假装自己能平滑滚动。
+ *    代价是「加载完成前点 Dock 锚点」会先用浏览器自己的平滑滚动，
+ *    Lenis 就绪后再交回给它。
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { SECTIONS, type SectionId } from '@/lib/sections';
 
 interface LenisLike {
@@ -24,19 +24,40 @@ interface LenisLike {
   destroy: () => void;
 }
 
-/** 模块级单例：Dock 等组件不必层层透传实例 */
+/**
+ * 模块级单例，同时挂在 globalThis 上。
+ * 热更新会重载这个文件、把模块变量清掉，但页面上的 Lenis 还活着。
+ * 只留模块变量的话，锚点会落到瞬间跳转。
+ */
+const LENIS_GLOBAL = '__niananLenis';
 let lenis: LenisLike | null = null;
 
-/** 锚点跳转。Lenis 未就绪（或 reduced-motion）时回落到原生滚动 */
+function readLenis(): LenisLike | null {
+  const stored = (globalThis as Record<string, unknown>)[LENIS_GLOBAL];
+  if (stored) return stored as LenisLike;
+  return lenis;
+}
+
+function writeLenis(instance: LenisLike | null) {
+  lenis = instance;
+  (globalThis as Record<string, unknown>)[LENIS_GLOBAL] = instance;
+}
+
+/** 锚点跳转。Lenis 未就绪时用浏览器平滑滚动，避免变成瞬间跳转 */
 export function scrollToId(id: string): void {
   const el = document.getElementById(id);
   if (!el) return;
 
-  if (lenis) {
-    lenis.scrollTo(el, { duration: 1.15 });
-  } else {
-    el.scrollIntoView();
+  const scroller = readLenis();
+  if (scroller) {
+    scroller.scrollTo(el, { duration: 1.15 });
+    return;
   }
+
+  el.scrollIntoView({
+    behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+    block: 'start',
+  });
 }
 
 /** 是否处于「减弱动效」模式 —— 滚动、shader、动画一致遵守同一个判断 */
@@ -46,6 +67,7 @@ export function prefersReducedMotion(): boolean {
 
 export function useScrollSystem(): SectionId | null {
   const [active, setActive] = useState<SectionId | null>(null);
+  const computeActiveRef = useRef<() => void>(() => {});
 
   // 1) Lenis 接管滚动，并与 GSAP 的 ticker 合流。
   //    reduced-motion 时整段跳过 —— 这类用户要的是「别给我做平滑」，直接用原生滚动。
@@ -74,16 +96,21 @@ export function useScrollSystem(): SectionId | null {
         easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         smoothWheel: true,
       }) as unknown as LenisLike;
-      lenis = instance;
+      writeLenis(instance);
 
-      instance.on('scroll', ScrollTrigger.update);
+      instance.on('scroll', () => {
+        ScrollTrigger.update();
+        // Lenis 用自己的 rAF 改滚动位置，结束时不一定再派发一次 window scroll。
+        // 区块高亮跟这次回调走，避免停在上一屏。
+        computeActiveRef.current();
+      });
 
       const tick = (time: number) => instance.raf(time * 1000);
       gsap.ticker.add(tick);
       gsap.ticker.lagSmoothing(0);
 
       // 带 hash 直接进入时定位。Lenis 接管后浏览器原生锚点跳转会被打断，
-      // 不补这一步，从外部链接跳到 #projects 会停在页面顶部。
+      // 不补这一步，从外部链接跳到 #contact 会停在页面顶部。
       const hash = window.location.hash.slice(1);
       if (hash) {
         instance.scrollTo(`#${hash}`, { immediate: true });
@@ -95,7 +122,7 @@ export function useScrollSystem(): SectionId | null {
       cleanup = () => {
         gsap.ticker.remove(tick);
         instance.destroy();
-        if (lenis === instance) lenis = null;
+        if (readLenis() === instance) writeLenis(null);
       };
     })();
 
@@ -134,6 +161,7 @@ export function useScrollSystem(): SectionId | null {
       }
       setActive(current);
     };
+    computeActiveRef.current = compute;
 
     compute();
     const raf = requestAnimationFrame(compute);
@@ -143,6 +171,7 @@ export function useScrollSystem(): SectionId | null {
 
     return () => {
       cancelAnimationFrame(raf);
+      computeActiveRef.current = () => {};
       window.removeEventListener('scroll', compute);
       window.removeEventListener('resize', compute);
       window.removeEventListener('load', compute);
