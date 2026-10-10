@@ -9,24 +9,39 @@ export const profile = {
   role: '前端 · AI Agent 工程',
 };
 
-/** 年限写在这段经历上方，不记到某一家公司头上。更早的公司不列。 */
-export const experienceNote = '前端开发 9 年，AI 开发 1 年。';
+/** 年限和总时段写在时间轴上方，不记到某一家公司头上。 */
+export const experienceNote = '前端开发 10 年，全栈开发 2 年，AI Agent 开发 1 年。';
+export const experienceSpan = '2017.03 – 2026.08';
 
-export interface ExperienceItem {
+export interface TimelineItem {
   period: string;
   title: string;
   org: string;
-  summary: string;
-  points: string[];
 }
 
-export const experience: ExperienceItem[] = [
+export const experience: TimelineItem[] = [
   {
     period: '2021.03 – 2026.08',
     title: '前端开发',
     org: '锅圈食品（上海）股份有限公司',
-    summary: '2021年3月15日入职，2026年8月12日离职，在职 5 年 4 个月。',
-    points: [],
+  },
+  {
+    period: '2019.03 – 2021.03',
+    title: '前端工程师',
+    org: '数说新奇信息技术（上海）有限公司',
+  },
+  {
+    period: '2017.02 – 2018.12',
+    title: 'H5前端工程师',
+    org: '讯泊网络科技（上海）',
+  },
+];
+
+export const education: TimelineItem[] = [
+  {
+    period: '2012.08 – 2016.06',
+    title: '机械设计制造及自动化 · 全日制本科',
+    org: '合肥大学',
   },
 ];
 

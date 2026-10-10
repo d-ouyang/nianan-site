@@ -1,34 +1,22 @@
-import { experience, experienceNote } from '@/content/profile';
+import { education, experience, experienceNote, experienceSpan } from '@/content/profile';
 import SectionFrame from '@/components/sections/SectionFrame';
+import Timeline from '@/components/ui/Timeline';
 
 export default function Experience() {
   return (
     <SectionFrame id="experience" eyebrow="Experience" title="工作经历" align="end">
-      <ol className="space-y-4">
-        {experience.map((item) => (
-          <li
-            key={`${item.org}-${item.title}`}
-            className="rounded-2xl bg-canvas/35 px-5 py-6 backdrop-blur-sm sm:px-6"
-          >
-            <p className="text-sm text-fg">{experienceNote}</p>
-            <div className="mt-5 grid gap-2 sm:grid-cols-[10.5rem_1fr] sm:gap-8">
-            <p className="font-mono text-xs text-faint sm:pt-1">{item.period}</p>
-            <div className="border-l border-line pl-5">
-              <h3 className="text-lg font-medium">{item.title}</h3>
-              <p className="mt-1 text-sm text-accent">{item.org}</p>
-              <p className="mt-3 text-sm leading-relaxed text-muted">{item.summary}</p>
-              {item.points.length > 0 && (
-                <ul className="mt-3 space-y-1.5 text-sm leading-relaxed text-muted">
-                  {item.points.map((point) => (
-                    <li key={point}>{point}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
-            </div>
-          </li>
-        ))}
-      </ol>
+      <div className="rounded-2xl bg-canvas/35 px-5 py-6 backdrop-blur-sm sm:px-6">
+        <p className="text-sm text-fg">{experienceNote}</p>
+        <p className="mt-2 font-mono text-xs text-faint">{experienceSpan}</p>
+        <div className="mt-8">
+          <Timeline items={experience} />
+        </div>
+      </div>
+
+      <h3 className="mt-12 text-xl font-medium tracking-tight">教育经历</h3>
+      <div className="mt-6 rounded-2xl bg-canvas/35 px-5 py-6 backdrop-blur-sm sm:px-6">
+        <Timeline items={education} />
+      </div>
     </SectionFrame>
   );
 }
