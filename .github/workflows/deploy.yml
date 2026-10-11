@@ -1,0 +1,42 @@
+name: deploy
+
+# 打 tag 推送（v*）即自动构建并部署到服务器 nianan.site
+# 也可在 GitHub Actions 页面手动触发（workflow_dispatch，用于重发同一版本）
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+# 同一时间只允许一个部署在跑；新部署排队时取消旧的
+concurrency:
+  group: deploy-site
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    # 与 rag-qa-system 共用同一台服务器上的 self-hosted runner 体系
+    # （runner 需注册到本仓库，见 docs/部署-自动发布.md）
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 容器内构建：与服务器环境解耦，Node/pnpm 版本锁死，宿主机无需装任何东西
+      # pnpm store 挂 named volume 缓存，二次部署安装走缓存
+      - name: Build (node:22-alpine)
+        run: |
+          docker run --rm \
+            -v "$PWD":/app -w /app \
+            -v site_pnpm_store:/root/.local/share/pnpm/store \
+            node:22-alpine sh -c "npm i -g pnpm@11 --no-fund --no-audit \
+              && pnpm install --frozen-lockfile \
+              && pnpm build"
+
+      # 静态产物发布到宿主 /var/www/personal（Caddy file_server 指向这里）
+      - name: Publish to /var/www/personal
+        run: |
+          test -f "$PWD/dist/index.html" || { echo "❌ dist/index.html 不存在，构建产物异常"; exit 1; }
+          rsync -a --delete "$PWD/dist/" /var/www/personal/
+          chmod -R a+rX /var/www/personal
+          echo "✅ 部署完成：https://nianan.site（静态产物无需 reload Caddy）"
