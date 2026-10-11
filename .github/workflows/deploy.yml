@@ -20,7 +20,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # 容器内构建：与服务器环境解耦，Node/pnpm 版本锁死，宿主机无需装任何东西
       # pnpm store 挂 named volume 缓存，二次部署安装走缓存
