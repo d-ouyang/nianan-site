@@ -5,12 +5,14 @@
 
 export const profile = {
   name: '欧阳鼎',
+  /** 邮箱 ding.ouyang 的写法：名在前，姓在后。 */
+  nameEn: 'Ding Ouyang',
   site: 'nianan.site',
-  role: '前端 · AI Agent 工程',
+  role: '前端·全栈·AI Agent',
 };
 
 /** 年限和总时段写在时间轴上方，不记到某一家公司头上。 */
-export const experienceNote = '前端开发 10 年，全栈开发 2 年，AI Agent 开发 1 年。';
+export const experienceNote = '前端开发 10 年，AI Agent 开发 1 年。';
 export const experienceSpan = '2017.03 – 2026.08';
 
 export interface TimelineItem {
@@ -63,8 +65,39 @@ export interface SkillGroup {
 }
 
 export const skillGroups: SkillGroup[] = [
-  { name: '前端', items: ['TypeScript', 'React', 'Tailwind CSS', 'WebGL'] },
-  { name: 'AI Agent 工程', items: ['任务拆解', '工具调用', '工作流'] },
+  {
+    name: '前端',
+    items: [
+      'Vue 3',
+      'React',
+      'TypeScript',
+      'Vite',
+      'Pinia',
+      'Tailwind CSS',
+      'UniApp / 小程序',
+      'Canvas / WebGL',
+    ],
+  },
+  {
+    name: '后端',
+    items: ['Node.js', 'NestJS', 'Python', 'FastAPI', 'LangChain', 'REST / NDJSON 流式', 'JWT 鉴权'],
+  },
+  {
+    name: 'AI Agent 工程',
+    items: [
+      '任务拆解',
+      '工具调用',
+      '工作流',
+      'RAG（检索增强）',
+      '向量数据库 / 重排',
+      'MCP',
+      '多 Agent 协作',
+    ],
+  },
+  {
+    name: '运维 / 部署',
+    items: ['Docker / Compose', 'Nginx', 'CI/CD', 'MySQL', 'Redis', 'Chroma', 'Linux', 'HTTPS / TLS'],
+  },
 ];
 
 export interface ProjectItem {

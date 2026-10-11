@@ -1,4 +1,6 @@
+import { useRef } from 'react';
 import { motion } from 'motion/react';
+import TargetCursor from '@/components/bits/TargetCursor';
 import { SECTIONS, type SectionId } from '@/lib/sections';
 import { scrollToId } from '@/hooks/useScrollSystem';
 
@@ -13,6 +15,8 @@ interface DockProps {
  * 前者在两个区块之间切换时是一块底色滑过去，后者是原地闪现。差别不大但一眼能看出。
  */
 export default function Dock({ active }: DockProps) {
+  const dockRef = useRef<HTMLUListElement>(null);
+
   return (
     <nav
       aria-label="页面导航"
@@ -21,7 +25,21 @@ export default function Dock({ active }: DockProps) {
       // （窄屏上「首页」被拆成上下两个字），而横向溢出检查还显示「没溢出」，很能骗人。
       className="fixed inset-x-0 bottom-5 z-50 flex justify-center px-4 sm:bottom-7"
     >
-      <ul className="flex items-center gap-0.5 whitespace-nowrap rounded-full border border-line bg-surface/70 p-1.5 backdrop-blur-xl">
+      <ul
+        ref={dockRef}
+        className="flex items-center gap-0.5 whitespace-nowrap rounded-full border border-line bg-surface/70 p-1.5 backdrop-blur-xl"
+      >
+        <TargetCursor
+          container={dockRef}
+          cursorColor="#00E0A4"
+          cursorColorOnTarget="#5CFFD0"
+          spinDuration={2}
+          hoverDuration={0.2}
+          parallaxOn
+          hideDefaultCursor
+          showLabel={false}
+          blendMode="normal"
+        />
         {SECTIONS.map((section) => {
           const isActive = active === section.id;
           return (
@@ -30,7 +48,7 @@ export default function Dock({ active }: DockProps) {
                 type="button"
                 onClick={() => scrollToId(section.id)}
                 aria-current={isActive ? 'true' : undefined}
-                className={`relative rounded-full px-2.5 py-1.5 text-[11px] transition-colors sm:px-3.5 sm:text-xs ${
+                className={`cursor-target relative rounded-full px-2.5 py-1.5 text-[11px] transition-colors sm:px-3.5 sm:text-xs ${
                   isActive ? 'text-canvas' : 'text-muted hover:text-fg'
                 }`}
               >

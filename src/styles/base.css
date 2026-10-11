@@ -27,21 +27,14 @@
     outline-offset: 2px;
   }
 
-  /* 暗色滚动条：默认亮色滚动条在近黑背景上非常突兀 */
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-line-strong) transparent;
+  /* 页面进度用 ScrollProgress，不再留浏览器自带的滚动条。 */
+  html {
+    scrollbar-width: none;
   }
-  *::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-  *::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  *::-webkit-scrollbar-thumb {
-    background-color: var(--color-line-strong);
-    border-radius: 999px;
+  html::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
   }
 }
 

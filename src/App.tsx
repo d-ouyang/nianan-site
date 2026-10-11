@@ -4,6 +4,7 @@ import Skills from '@/components/sections/Skills';
 import Projects from '@/components/sections/Projects';
 import Contact from '@/components/sections/Contact';
 import Footer from '@/components/sections/Footer';
+import BackToTop from '@/components/ui/BackToTop';
 import Dock from '@/components/ui/Dock';
 import ScrollProgress from '@/components/ui/ScrollProgress';
 import { useScrollSystem } from '@/hooks/useScrollSystem';
@@ -27,6 +28,7 @@ export default function App() {
         <Footer />
       </div>
 
+      <BackToTop />
       <Dock active={active} />
     </main>
   );

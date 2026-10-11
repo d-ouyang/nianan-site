@@ -224,6 +224,7 @@ export default function TechText({
         s.strokeWidth,
         s.lineStyle,
         s.align,
+        s.labels,
         width,
         height,
         dpr,
@@ -239,19 +240,28 @@ export default function TechText({
       const probe = scratchCtx;
       setFont(probe, s, s.fontSize);
       let m = probe.measureText(s.text);
+      // 选框、角标和描边都会伸出字形。贴着画布边画会被切掉，尤其是居左时的第一个字。
+      const strokeOut = Math.ceil(s.strokeWidth * 2 + 4);
+      const frameOut = 10;
+      const side = Math.max(strokeOut, frameOut);
+      const padTop = side + (s.labels ? 22 : 0);
+      const padBottom = side + 10;
       const fit = Math.min(
         1,
-        (width * 0.9) / Math.max(m.actualBoundingBoxLeft + m.actualBoundingBoxRight, 1),
-        (height * 0.66) / Math.max(m.actualBoundingBoxAscent + m.actualBoundingBoxDescent, 1),
+        (width - side * 2) / Math.max(m.actualBoundingBoxLeft + m.actualBoundingBoxRight, 1),
+        (height - padTop - padBottom) / Math.max(m.actualBoundingBoxAscent + m.actualBoundingBoxDescent, 1),
       );
       const size = s.fontSize * fit;
       setFont(probe, s, size);
       m = probe.measureText(s.text);
       const inkWidth = m.actualBoundingBoxLeft + m.actualBoundingBoxRight;
       const inkHeight = m.actualBoundingBoxAscent + m.actualBoundingBoxDescent;
+      const innerH = Math.max(inkHeight, height - padTop - padBottom);
       const x =
-        s.align === 'left' ? m.actualBoundingBoxLeft : (width - inkWidth) / 2 + m.actualBoundingBoxLeft;
-      const baseline = (height - inkHeight) / 2 + m.actualBoundingBoxAscent;
+        s.align === 'left'
+          ? side + m.actualBoundingBoxLeft
+          : side + (width - side * 2 - inkWidth) / 2 + m.actualBoundingBoxLeft;
+      const baseline = padTop + (innerH - inkHeight) / 2 + m.actualBoundingBoxAscent;
       const next = {
         size,
         baseline,
@@ -292,6 +302,35 @@ export default function TechText({
           dashes: sprite(s, next, base, true),
         });
       });
+      // 单字的左右边距有时比整行测量更大，再平移一次，保证描边和选框留在画布内。
+      if (glyphs.length) {
+        let minX = Infinity;
+        let minY = Infinity;
+        for (const glyph of glyphs) {
+          minX = Math.min(minX, glyph.box.x1);
+          minY = Math.min(minY, glyph.box.y1);
+        }
+        const dx = Math.max(0, side - minX);
+        const dy = Math.max(0, padTop - minY);
+        if (dx || dy) {
+          for (const glyph of glyphs) {
+            glyph.x += dx;
+            glyph.box.x1 += dx;
+            glyph.box.x2 += dx;
+            glyph.box.y1 += dy;
+            glyph.box.y2 += dy;
+            glyph.fill.left += dx;
+            glyph.fill.top += dy;
+            glyph.dashes.left += dx;
+            glyph.dashes.top += dy;
+          }
+          next.left += dx;
+          next.right += dx;
+          next.top += dy;
+          next.bottom += dy;
+          next.baseline += dy;
+        }
+      }
       dragging = -1;
       frame.index = -1;
       return next;

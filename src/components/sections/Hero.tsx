@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import MicroSlats from '@/components/bits/MicroSlats';
+import TargetCursor from '@/components/bits/TargetCursor';
 import TechText from '@/components/bits/TechText';
 import { profile } from '@/content/profile';
 import { canRunWebGL } from '@/lib/capabilities';
@@ -8,7 +9,8 @@ import { scrollToId } from '@/hooks/useScrollSystem';
 const JUMPS = [
   { id: 'skills', label: '技能' },
   { id: 'projects', label: '项目' },
-  { id: 'experience', label: '工作经历' },
+  { id: 'experience', label: '经历' },
+  { id: 'contact', label: '联系' },
 ] as const;
 
 /** WebGL 不可用时的静态降级：同色相的一次性辉光，不跑 shader */
@@ -57,6 +59,8 @@ export function HeroBackdrop() {
 }
 
 export default function Hero() {
+  const jumpsRef = useRef<HTMLDivElement>(null);
+
   return (
     <section id="hero" className="relative h-dvh overflow-hidden">
 
@@ -64,7 +68,7 @@ export default function Hero() {
         <div className="mx-auto w-full max-w-5xl">
         <div className="w-full max-w-xl rounded-3xl bg-canvas/35 p-6 backdrop-blur-sm sm:p-8">
           <p className="font-mono text-xs tracking-[0.18em] text-accent uppercase">{profile.site}</p>
-          <h1 className="mt-3 h-28 sm:h-32">
+          <h1 className="mt-3 -ml-5 h-40 sm:h-48">
             <TechText
               text={profile.name}
               className="font-sans"
@@ -81,14 +85,26 @@ export default function Hero() {
               draggable={false}
             />
           </h1>
-          <p className="text-base text-fg sm:text-lg">{profile.role}</p>
-          <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2">
+          <p className="mt-2 font-mono text-sm tracking-[0.16em] text-muted">{profile.nameEn}</p>
+          <p className="mt-3 text-base text-fg sm:text-lg">{profile.role}</p>
+          <div ref={jumpsRef} className="mt-8 flex flex-wrap gap-x-5 gap-y-2">
+            <TargetCursor
+              container={jumpsRef}
+              cursorColor="#00E0A4"
+              cursorColorOnTarget="#5CFFD0"
+              spinDuration={2}
+              hoverDuration={0.2}
+              parallaxOn
+              hideDefaultCursor
+              showLabel={false}
+              blendMode="normal"
+            />
             {JUMPS.map((item) => (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => scrollToId(item.id)}
-                className="text-sm text-accent transition-colors hover:text-fg"
+                className="cursor-target text-sm text-accent transition-colors hover:text-fg"
               >
                 {item.label}
               </button>
