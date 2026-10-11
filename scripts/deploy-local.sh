@@ -5,13 +5,22 @@
 #   本地构建（tsc + vite）→ rsync dist/ → 服务器 /var/www/personal
 #
 # 用法：bash scripts/deploy-local.sh
+# 服务器地址不写在仓库里：从 scripts/.deploy-env（gitignore，本机私有）或环境变量
+# DEPLOY_SERVER 读取。克隆本项目的人没有这两样，脚本会在第一步就拒绝执行。
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-SERVER="${DEPLOY_SERVER:-ubuntu@42.192.111.82}"
-DEST="/var/www/personal"
+# ── 部署目标：.deploy-env 私有配置 > 环境变量，都没有就拒绝 ──
+ENV_FILE="$ROOT/scripts/.deploy-env"
+[ -f "$ENV_FILE" ] && . "$ENV_FILE"
+SERVER="${DEPLOY_SERVER:-}"
+DEST="${DEPLOY_DEST:-/var/www/personal}"
+[ -n "$SERVER" ] || {
+  echo "❌ 未配置部署目标。请复制 scripts/.deploy-env.example 为 scripts/.deploy-env 并填入你的服务器地址（该文件不会入库）"
+  exit 1
+}
 
 # ── 前置守卫：不满足条件直接拒绝，防误发 ──
 branch="$(git rev-parse --abbrev-ref HEAD)"

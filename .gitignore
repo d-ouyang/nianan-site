@@ -12,3 +12,6 @@ package-lock.json
 .env
 .env.*
 !.env.example
+
+# 部署目标（服务器地址），只在本地
+scripts/.deploy-env

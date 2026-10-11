@@ -1,0 +1,4 @@
+# 部署目标配置（本文件已被 gitignore，绝不入库）
+# 复制本文件为 scripts/.deploy-env 并填入真实值
+DEPLOY_SERVER="ubuntu@你的服务器IP"
+DEPLOY_DEST="/var/www/personal"
