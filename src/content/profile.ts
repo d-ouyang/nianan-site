@@ -24,7 +24,7 @@ export interface TimelineItem {
 export const experience: TimelineItem[] = [
   {
     period: '2021.03 – 2026.08',
-    title: '前端开发',
+    title: 'web前端研发工程师',
     org: '锅圈食品（上海）股份有限公司',
   },
   {
@@ -260,33 +260,30 @@ export const projects: ProjectItem[] = [
       '多分支管理：master / toutiao / xiao_chao / b_mall / f2b / igq / songhe 等 8 条业务分支',
     ],
     metrics: [
-      { label: 'Git 分支', value: '89 个' },
-      { label: '源文件', value: '1269 个' },
-      { label: '条件编译', value: '649 处' },
       { label: '交付端', value: '5 端一套代码' },
-      { label: '拆出主包组件', value: '57 个' },
       { label: '裂变业态', value: '小炒 / B2C / F2B / i锅圈' },
+      { label: '零售全链路', value: '定位→加购→活动→结算→会员' },
     ],
     highlights: [
       {
+        title: '首页首屏优化：扛住大流量下的首屏体验',
+        body: '首页要同时拉门店、商品瀑布流、活动（拼团 / 秒杀 / 接龙）、优惠券、推荐等十几个模块，大促峰值更高。优化分三层：**分包与预加载**——preloadRule 在进首页前静默预载 pages-async / pages-market 等分包，点进详情不再等分包下载；**主包瘦身**——manualChunks 把 router/request/stores/commons 合并成 common chunk，easycom + 自研插件让组件按需加载、占位不报错，主包不再被大组件顶到 2MB 红线；**请求与渲染**——多模块走聚合 / 并发控制（Promise.all 收口、失败降级兜底），本地缓存 + 失效刷新减少重复请求，图片懒加载接 CDN，长列表用分页折叠（ifFold + pageSize）分批渲染避免一次上万个节点卡死低端机。收益：主包体积回到安全水位、大促不再因包体超限卡发版，首屏可交互时间明显缩短、白屏基本消除，首页请求数随聚合与缓存下降。具体毫秒数以微信开发者工具 Audits / 录屏回放实测为准。',
+      },
+      {
         title: '多分支 + 条件编译双轨多端架构',
-        body: '8 条业务分支隔离业态逻辑、共用核心代码库；649 处 #ifdef 覆盖 JS、Vue 模板、SCSS、pages.json 路由、manifest 五层。平台差异收敛到 getPlatform() / generatePayParams() / getNavMenuInfo() 统一接口，上层业务零感知。',
+        body: '多条业务分支隔离业态逻辑、共用核心代码库，条件编译覆盖 JS、Vue 模板、SCSS、pages.json 路由、manifest 五层。平台差异收敛到 getPlatform() / generatePayParams() / getNavMenuInfo() 统一接口，上层业务零感知。',
       },
       {
         title: '支付与登录四端统一封装',
         body: '微信五参数调起、抖音 service:5 + orderInfo、支付宝交易号直传、App 按 provider 区分——全部收进 generatePayParams()；微信 wx.login、抖音 tt.login、App 原生登录在 authorization 页条件编译出统一入口。',
       },
       {
-        title: '两级异步分包，拆掉 2MB 主包限制',
-        body: 'pages-async（商品详情规格弹窗、套餐选择、富文本解析等 24 个）+ pages-async-sub（购物车、结算、优惠券、支付方式等 33 个）共 57 个大体积组件迁出主包；首页预载 async、授权页双分包全预载，在首屏体验与包体积间取平衡。',
-      },
-      {
-        title: '自研 Vite 插件让分包零配置',
-        body: 'generateBundle 阶段扫描所有产物 .json 的 usingComponents，检测到异步分包引用即自动注入 componentPlaceholder 占位配置——开发者按 easycom 规则（^g-a- / ^g-s- / ^g-m- / ^u-）零 import 直接用标签，插件兜底避免加载失败；manualChunks 再把 router/request/stores 合并成 common chunk 瘦主包。',
+        title: '自研 Vite 插件 + easycom 四规则，分包零配置',
+        body: 'generateBundle 阶段扫描所有产物 .json 的 usingComponents，检测到异步分包引用即自动注入 componentPlaceholder 占位配置——开发者按 easycom 规则（^g-a- / ^g-s- / ^g-m- / ^u-）零 import 直接用标签，插件兜底避免加载失败；manualChunks 再把公共依赖合并成 common chunk 瘦主包。',
       },
       {
         title: 'AI 点单：对话式购物全链路',
-        body: 'WebSocket 单例客户端双定时器心跳（10s ping + 3s pong 超时窗口检测半连接），页面关闭经 getCurrentPages() 检测自动销毁连接；阿里云 NLS 流式 TTS 全链路不落盘（Base64 解码三级降级兼容红米旧机），PCM 边收边播靠 _nextStartTime 无缝拼接、onended 不触发的机型用计数器 + currentTime 轮询双保险；24 种意图 + 意图继承快照，结算卡 6 类异常商品硬失效 / 软异常分流。',
+        body: 'WebSocket 单例客户端双定时器心跳（10s ping + 3s pong 超时窗口检测半连接），页面关闭经 getCurrentPages() 检测自动销毁连接；阿里云 NLS 流式 TTS 全链路不落盘（Base64 解码三级降级兼容红米旧机），PCM 边收边播靠 _nextStartTime 无缝拼接；24 种意图 + 意图继承快照，结算卡 6 类异常商品硬失效 / 软异常分流。',
       },
       {
         title: '「一起吃」多人社交拼单',
@@ -311,10 +308,10 @@ export const projects: ProjectItem[] = [
         gain: '以 xiao_chao/master 分支孵化锅圈小炒预制菜平台，B2C、F2B、松鹤等业态同源裂变',
       },
       {
-        version: '分包',
+        version: '首屏',
         date: '持续',
-        title: '首屏加载优化',
-        gain: '57 个组件出主包 + 预加载策略 + manualChunks，微信 2MB 限制不再卡发版',
+        title: '首页首屏优化',
+        gain: 'preloadRule 分包预加载 + manualChunks 主包瘦身 + 请求聚合缓存，大促不再因包体超限卡发版、白屏基本消除',
       },
       {
         version: 'AI',
