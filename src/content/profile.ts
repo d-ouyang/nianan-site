@@ -262,7 +262,7 @@ export const projects: ProjectItem[] = [
     metrics: [
       { label: '交付端', value: '5 端一套代码' },
       { label: '裂变业态', value: '小炒 / B2C / F2B / i锅圈' },
-      { label: '零售全链路', value: '定位（非强制）→加购（活动）→结算→下单（自提/配送）→售后→会员积分' },
+      { label: '零售全链路', value: '定位→加购→结算→下单→售后' },
     ],
     highlights: [
       {
@@ -292,6 +292,10 @@ export const projects: ProjectItem[] = [
       {
         title: 'CMS 配置化渲染，运营自助上活动页',
         body: '配套 gqsh-cms-ui-h5 组件库 JSON Schema 驱动渲染：页面结构与配置数据解耦、按组件 ID 分发，支持热更新不发版；10 类可配置组件（商品 / 优惠券 / 轮播 / 锚点导航 / 倒计时等），锚点导航用 IntersectionObserver 自动高亮——运营在后台拖拽即生成预制菜活动会场。',
+      },
+      {
+        title: '数据埋点：默认 + 自定义 + 可视区域曝光三层覆盖',
+        body: '基于神策 UniApp SDK 做全链路埋点，三层覆盖：**默认埋点（autoTrack 全埋点）**——appLaunch / appShow / pageShow / mpClick / pageLeave 等生命周期与点击自动采集，零侵入；**自定义埋点**——在 initSensors 里封装几十个语义化事件（ClickPageIcon、BannerClick、KingKong_position、AddToShoppingCart、BuyNow、ReceiveDiscount、LoginResult 等），几乎全是点击交互类，用短方法名（sa.cpi / sa.bc / sa.atsc）收敛调用；**可视区域曝光埋点（exposure/index.js）**——IntersectionObserver 监听元素进入视口（阈值 0.6 且停留 1s 才上报），用户真实浏览才埋点、没浏览不埋，区分商品（ProductExposure）与运营位（ExposureBannerClick）曝光，解决「渲染了但没看见」的虚假曝光。',
       },
     ],
     iterations: [
