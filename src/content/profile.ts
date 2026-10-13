@@ -133,7 +133,7 @@ export const projects: ProjectItem[] = [
     name: '企业级 RAG 智能问答系统',
     meta: '全栈 · AI Agent · 2026.09 – 2026.10',
     summary:
-      '公司内部知识库问答系统：上传文档自动解析入库，提问后流式作答并附引用溯源。三周内从本地原型迭代到域名 HTTPS 上线，40+ 个版本 tag、1376 项自动化测试守着。',
+      '公司内部知识库问答系统：上传文档自动解析入库，提问后流式作答并附引用溯源。每次改动都有自动化测试与评测集兜底，六容器一键起停、CI/CD 自动发布。',
     tags: ['FastAPI', 'LangChain', 'Chroma', 'Vue 3', 'NestJS', 'MySQL', 'Docker', 'RAG'],
     stack: [
       '后端：FastAPI + LangChain LCEL + Celery',
@@ -144,11 +144,8 @@ export const projects: ProjectItem[] = [
       '部署：Docker Compose 六容器 + 边缘 nginx + TLS + CI/CD 自动发布',
     ],
     metrics: [
-      { label: '版本 tag', value: '40+' },
       { label: '自动化测试', value: '1376 项' },
-      { label: '知识库规模', value: '35 文档 / 90 切片' },
       { label: '评测集', value: '40 条 golden' },
-      { label: '0→1 上线', value: '3 周' },
       { label: '部署形态', value: '6 容器一键起停' },
     ],
     highlights: [

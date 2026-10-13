@@ -105,10 +105,7 @@ function ProjectCard({ project }: { project: ProjectItem }) {
             <ul className="grid gap-3">
               {project.iterations.map((it) => (
                 <li key={it.version + it.title} className="flex flex-col gap-1 sm:flex-row sm:gap-4">
-                  <span className="shrink-0 font-mono text-xs text-accent sm:w-28">
-                    {it.version}
-                    <span className="ml-2 text-faint">{it.date}</span>
-                  </span>
+                  <span className="shrink-0 font-mono text-xs text-accent sm:w-28">{it.version}</span>
                   <span className="text-sm text-fg sm:w-44 sm:shrink-0">{it.title}</span>
                   <span className="text-sm leading-relaxed text-muted">
                     <Bold text={it.gain} />
