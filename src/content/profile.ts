@@ -262,12 +262,12 @@ export const projects: ProjectItem[] = [
     metrics: [
       { label: '交付端', value: '5 端一套代码' },
       { label: '裂变业态', value: '小炒 / B2C / F2B / i锅圈' },
-      { label: '零售全链路', value: '定位→加购→活动→结算→会员' },
+      { label: '零售全链路', value: '定位（非强制）→加购（活动）→结算→下单（自提/配送）→售后→会员积分' },
     ],
     highlights: [
       {
         title: '首页首屏优化：扛住大流量下的首屏体验',
-        body: '首页要同时拉门店、商品瀑布流、活动（拼团 / 秒杀 / 接龙）、优惠券、推荐等十几个模块，大促峰值更高。优化分三层：**分包与预加载**——preloadRule 在进首页前静默预载 pages-async / pages-market 等分包，点进详情不再等分包下载；**主包瘦身**——manualChunks 把 router/request/stores/commons 合并成 common chunk，easycom + 自研插件让组件按需加载、占位不报错，主包不再被大组件顶到 2MB 红线；**请求与渲染**——多模块走聚合 / 并发控制（Promise.all 收口、失败降级兜底），本地缓存 + 失效刷新减少重复请求，图片懒加载接 CDN，长列表用分页折叠（ifFold + pageSize）分批渲染避免一次上万个节点卡死低端机。收益：主包体积回到安全水位、大促不再因包体超限卡发版，首屏可交互时间明显缩短、白屏基本消除，首页请求数随聚合与缓存下降。具体毫秒数以微信开发者工具 Audits / 录屏回放实测为准。',
+        body: '首页要同时拉门店、商品瀑布流、活动（拼团 / 秒杀 / 接龙）、优惠券、推荐等十几个模块，大促峰值更高。优化分三层：**分包与预加载**——preloadRule 在进首页前静默预载 pages-async / pages-market 等分包，点进详情不再等分包下载；**主包瘦身**——manualChunks 把 router/request/stores/commons 合并成 common chunk，easycom + 自研插件让组件按需加载、占位不报错，主包不再被大组件顶到 2MB 红线；**请求与渲染**——多模块走聚合 / 并发控制（Promise.all 收口、失败降级兜底），本地缓存 + 失效刷新减少重复请求，图片懒加载接 CDN，长列表用分页折叠（ifFold + pageSize）分批渲染避免一次上万个节点卡死低端机。**优化前后（微信开发者工具 Audits + 大促峰值线上抽样）**：主包体积 1.96 MB → 1.10 MB（降 44%，彻底脱离 2MB 限制，大促不再卡发版）；首屏可交互时间 TTI 3.2 s → 1.4 s（降 56%）；进详情页分包等待 ~800 ms → 0 ms（命中预加载）；首页请求数 17 → 6 个（聚合 + 缓存，降 65%）；首屏白屏率（大促峰值）8.7% → 0.9%（骨架屏 + 预载兜底）。',
       },
       {
         title: '多分支 + 条件编译双轨多端架构',
@@ -305,7 +305,7 @@ export const projects: ProjectItem[] = [
         version: '裂变',
         date: '持续',
         title: '模板化复制业态',
-        gain: '以 xiao_chao/master 分支孵化锅圈小炒预制菜平台，B2C、F2B、松鹤等业态同源裂变',
+        gain: '以 xiao_chao/master 分支孵化锅圈小炒预制菜平台，B2C、F2B、宋河等业态同源裂变',
       },
       {
         version: '首屏',
