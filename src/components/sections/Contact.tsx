@@ -1,4 +1,5 @@
 import { contactLinks, type ContactLink } from '@/content/profile';
+import MoodNote from '@/components/sections/MoodNote';
 import SectionFrame from '@/components/sections/SectionFrame';
 
 function ContactIcon({ kind }: { kind: ContactLink['kind'] }) {
@@ -40,7 +41,7 @@ export default function Contact() {
   return (
     <SectionFrame id="contact" eyebrow="Contact" title="联系">
       <div className="rounded-2xl bg-canvas/35 px-5 py-6 backdrop-blur-sm sm:px-6">
-        <p className="text-base leading-relaxed text-muted">合作，或者只是打个招呼，从这页开始就行。</p>
+        <p className="text-base leading-relaxed text-muted">合作，或者只是打个招呼，从这里开始。</p>
         <ul className="mt-6 space-y-3">
           {contactLinks.map((item) => (
             <li key={item.href}>
@@ -58,6 +59,7 @@ export default function Contact() {
           ))}
         </ul>
       </div>
+      <MoodNote />
     </SectionFrame>
   );
 }

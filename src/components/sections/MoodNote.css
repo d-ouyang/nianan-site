@@ -1,0 +1,65 @@
+.mood-eye line {
+  stroke: #ececee;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+.mood-slider-slot {
+  position: relative;
+  width: 36px;
+  height: 168px;
+}
+
+.mood-slider {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 168px;
+  height: 28px;
+  margin: 0;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.mood-slider:focus {
+  outline: none;
+}
+
+.mood-slider::-webkit-slider-runnable-track {
+  height: 16px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #4c8dff 0%, #f5c542 100%);
+}
+
+.mood-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 26px;
+  height: 26px;
+  margin-top: -5px;
+  border: none;
+  border-radius: 999px;
+  background: #ececee;
+  box-shadow: 0 0 0 1px rgb(9 9 11 / 0.35);
+}
+
+.mood-slider:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 3px rgb(0 224 164 / 0.55);
+}
+
+.mood-slider::-moz-range-track {
+  height: 16px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #4c8dff 0%, #f5c542 100%);
+}
+
+.mood-slider::-moz-range-thumb {
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 999px;
+  background: #ececee;
+}

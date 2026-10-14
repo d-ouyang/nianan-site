@@ -2,6 +2,7 @@ import { useMemo, useRef } from 'react';
 import MicroSlats from '@/components/bits/MicroSlats';
 import TargetCursor from '@/components/bits/TargetCursor';
 import TechText from '@/components/bits/TechText';
+import TextType from '@/components/bits/TextType';
 import { profile } from '@/content/profile';
 import { canRunWebGL } from '@/lib/capabilities';
 import { scrollToId } from '@/hooks/useScrollSystem';
@@ -42,9 +43,12 @@ export function HeroBackdrop() {
           <MicroSlats
             className="h-full w-full"
             preset="swell"
-            color="#00E0A4"
-            glintColor="#9dffe6"
+            color="#00997A"
+            glintColor="#00E0A4"
             backgroundColor="#09090B"
+            glint={0.18}
+            contrast={1.2}
+            fog={0.68}
             interactive
             intro
             cursorStrength={1.1}
@@ -62,15 +66,15 @@ export default function Hero() {
   const jumpsRef = useRef<HTMLDivElement>(null);
 
   return (
-    <section id="hero" className="relative h-dvh overflow-hidden">
+    <section id="home" className="relative h-dvh overflow-hidden">
 
       <div className="relative z-10 flex h-full w-full items-center overflow-y-auto px-6 py-28">
-        <div className="mx-auto w-full max-w-5xl">
-        <div className="w-full max-w-xl rounded-3xl bg-canvas/35 p-6 backdrop-blur-sm sm:p-8">
+        <div className="mx-auto grid w-full max-w-5xl items-center gap-10 lg:grid-cols-[minmax(0,36rem)_minmax(0,1fr)] lg:gap-16">
+        <div className="w-full rounded-3xl bg-canvas/35 p-6 backdrop-blur-sm sm:p-8">
           <p className="font-mono text-xs tracking-[0.18em] text-accent uppercase">{profile.site}</p>
           <h1 className="mt-3 -ml-5 h-40 sm:h-48">
             <TechText
-              text={profile.name}
+              text={profile.nameEn}
               className="font-sans"
               color="#5CFFD0"
               accentColor="#ECECEE"
@@ -85,7 +89,7 @@ export default function Hero() {
               draggable={false}
             />
           </h1>
-          <p className="mt-2 font-mono text-sm tracking-[0.16em] text-muted">{profile.nameEn}</p>
+          <p className="mt-2 text-base tracking-[0.16em] text-muted">{profile.name}</p>
           <p className="mt-3 text-base text-fg sm:text-lg">{profile.role}</p>
           <div ref={jumpsRef} className="mt-8 flex flex-wrap gap-x-5 gap-y-2">
             <TargetCursor
@@ -110,6 +114,24 @@ export default function Hero() {
               </button>
             ))}
           </div>
+        </div>
+        <div className="min-w-0 lg:pl-4">
+          <TextType
+            text={[
+              '你好，欢迎来到我的世界。\nHello, welcome to my world.',
+              '我最近在从事 AI Agent 开发的工作，如果想一起探讨可以联系我。\nI\u2019ve been working on AI Agent development lately. If you\u2019d like to talk it through, feel free to reach me.',
+              '祝您拥有愉快的一天，期待与您的合作！\nWishing you a pleasant day. I look forward to working with you.',
+            ]}
+            typingSpeed={40}
+            deletingSpeed={20}
+            pauseDuration={1400}
+            showCursor
+            cursorCharacter="|"
+            className="text-xl leading-snug font-medium tracking-tight sm:text-2xl"
+            cursorClassName="text-accent"
+            textColors={['#ECECEE', '#5CFFD0', '#ECECEE']}
+            startOnVisible
+          />
         </div>
         </div>
       </div>

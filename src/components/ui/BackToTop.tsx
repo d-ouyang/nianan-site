@@ -33,7 +33,7 @@ export default function BackToTop() {
         >
           <SlingButton
             ariaLabel="回到顶部"
-            onSend={() => scrollToId('hero')}
+            onSend={() => scrollToId('home')}
             padColor="#00E0A4"
             iconColor="#09090B"
             accentColor="#5CFFD0"

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Mood 后台 · nianan.site</title>
+<style>
+  :root {
+    --bg: #0b0b0f;
+    --panel: #121215;
+    --border: #35353d;
+    --text: #ececee;
+    --muted: #9a9aa3;
+    --accent: #00e0a4;
+    --danger: #ff6b6b;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font: 14px/1.6 "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+    padding: 40px 24px;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 18px; font-weight: 600; letter-spacing: 0.5px; }
+  h1 em { color: var(--accent); font-style: normal; }
+  .sub { color: var(--muted); margin-top: 4px; font-size: 13px; }
+  .bar {
+    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+    margin: 24px 0; padding: 16px;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px;
+  }
+  input, select, button {
+    background: #0b0b0f; color: var(--text);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 12px; font-size: 13px; outline: none;
+  }
+  input:focus { border-color: var(--accent); }
+  input[type="password"] { width: 280px; }
+  button { cursor: pointer; }
+  button.primary { background: var(--accent); color: #09090b; border-color: var(--accent); font-weight: 600; }
+  button.primary:hover { filter: brightness(1.1); }
+  .msg { margin: 0 0 16px; font-size: 13px; color: var(--muted); min-height: 20px; }
+  .msg.err { color: var(--danger); }
+  table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; background: #0e0e12; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  .mood-tag { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; border: 1px solid var(--border); }
+  .mood-Happy { color: var(--accent); border-color: var(--accent); }
+  .mood-Sad { color: #7aa7ff; border-color: #7aa7ff; }
+  .mood-Neutral { color: var(--muted); }
+  .read-0 { color: var(--accent); }
+  .read-1 { color: var(--muted); }
+  .ua { color: var(--muted); font-size: 12px; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .empty { color: var(--muted); text-align: center; padding: 32px 0; }
+  code { font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Mood 后台 <em>·</em> nianan.site</h1>
+  <p class="sub">「Are you happy today」提交记录。口令即后端 <code>MOOD_ADMIN_TOKEN</code>，仅存于本页会话，不落任何存储。</p>
+
+  <div class="bar">
+    <input id="token" type="password" placeholder="查看口令（MOOD_ADMIN_TOKEN）" autocomplete="off">
+    <select id="limit">
+      <option value="50">最近 50 条</option>
+      <option value="100" selected>最近 100 条</option>
+      <option value="200">最近 200 条</option>
+      <option value="500">最近 500 条</option>
+    </select>
+    <button class="primary" id="load">加载</button>
+    <button id="reload" hidden>刷新</button>
+  </div>
+
+  <div class="msg" id="msg"></div>
+  <div id="result"></div>
+</div>
+
+<script>
+(function () {
+  var $msg = document.getElementById('msg');
+  var $result = document.getElementById('result');
+  var $token = document.getElementById('token');
+  var $limit = document.getElementById('limit');
+  var $reload = document.getElementById('reload');
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function fail(text) {
+    $msg.className = 'msg err';
+    $msg.textContent = text;
+    $result.innerHTML = '';
+    $reload.hidden = true;
+  }
+
+  function load() {
+    var token = $token.value.trim();
+    if (!token) { fail('请输入查看口令。'); return; }
+    $msg.className = 'msg';
+    $msg.textContent = '加载中…';
+    $result.innerHTML = '';
+
+    fetch('/api/mood/admin?token=' + encodeURIComponent(token) + '&limit=' + $limit.value)
+      .then(function (res) {
+        if (res.status === 401) throw new Error('口令不正确。');
+        if (res.status === 503) throw new Error('查看功能未启用：服务器未配置 MOOD_ADMIN_TOKEN。');
+        if (!res.ok) throw new Error('接口异常（HTTP ' + res.status + '）。');
+        return res.json();
+      })
+      .then(function (data) {
+        var items = data.items || [];
+        $msg.className = 'msg';
+        $msg.textContent = '共 ' + data.total + ' 条提交，本次展示 ' + items.length + ' 条。';
+        $reload.hidden = false;
+        if (!items.length) {
+          $result.innerHTML = '<table><tbody><tr><td class="empty">还没有提交记录。</td></tr></tbody></table>';
+          return;
+        }
+        var rows = items.map(function (it) {
+          return '<tr>'
+            + '<td>' + esc(it.id) + '</td>'
+            + '<td>' + esc(it.email) + '</td>'
+            + '<td><span class="mood-tag mood-' + esc(it.mood_word) + '">'
+            + esc(it.mood) + ' · ' + esc(it.mood_word) + '</span></td>'
+            + '<td>' + esc(it.created_at || '-') + '</td>'
+            + '<td class="read-' + (it.is_read ? 1 : 0) + '">' + (it.is_read ? '已跟进' : '未读') + '</td>'
+            + '<td class="ua" title="' + esc(it.user_agent) + '">' + esc(it.user_agent || '-') + '</td>'
+            + '</tr>';
+        }).join('');
+        $result.innerHTML =
+          '<table><thead><tr>'
+          + '<th>#</th><th>邮箱</th><th>心情</th><th>提交时间</th><th>状态</th><th>UA</th>'
+          + '</tr></thead><tbody>' + rows + '</tbody></table>';
+      })
+      .catch(function (e) { fail(e.message || '加载失败。'); });
+  }
+
+  document.getElementById('load').addEventListener('click', load);
+  $token.addEventListener('keydown', function (e) { if (e.key === 'Enter') load(); });
+  $reload.addEventListener('click', load);
+})();
+</script>
+</body>
+</html>

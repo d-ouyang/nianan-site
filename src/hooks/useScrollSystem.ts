@@ -112,8 +112,9 @@ export function useScrollSystem(): SectionId | null {
       // 带 hash 直接进入时定位。Lenis 接管后浏览器原生锚点跳转会被打断，
       // 不补这一步，从外部链接跳到 #contact 会停在页面顶部。
       const hash = window.location.hash.slice(1);
-      if (hash) {
-        instance.scrollTo(`#${hash}`, { immediate: true });
+      const target = hash === 'hero' ? 'home' : hash;
+      if (target && target !== 'home') {
+        instance.scrollTo(`#${target}`, { immediate: true });
       }
 
       // Lenis 会给 html 加 class 并放开高度，文档高度可能变化，重新量一次
@@ -182,7 +183,13 @@ export function useScrollSystem(): SectionId | null {
   //    后者会触发浏览器锚点跳转，与 Lenis 打架，还会往历史里塞一堆记录。
   useEffect(() => {
     if (!active) return;
-    if (window.location.hash.slice(1) === active) return;
+    const current = window.location.hash;
+    if (active === 'home') {
+      if (current === '' || current === '#') return;
+      history.replaceState(null, '', `${window.location.pathname}${window.location.search}`);
+      return;
+    }
+    if (current === `#${active}`) return;
     history.replaceState(null, '', `#${active}`);
   }, [active]);
 

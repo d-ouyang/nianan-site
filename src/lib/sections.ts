@@ -11,7 +11,7 @@ export interface SectionMeta {
 }
 
 export const SECTIONS = [
-  { id: 'hero', label: '首页' },
+  { id: 'home', label: '首页' },
   { id: 'skills', label: '技能' },
   { id: 'projects', label: '项目' },
   { id: 'experience', label: '经历' },
@@ -21,4 +21,4 @@ export const SECTIONS = [
 export type SectionId = (typeof SECTIONS)[number]['id'];
 
 /** 除 Hero 外的区块 —— P0-3 先用占位，P0-4 逐个换成真实内容 */
-export const CONTENT_SECTIONS = SECTIONS.filter((s) => s.id !== 'hero');
+export const CONTENT_SECTIONS = SECTIONS.filter((s) => s.id !== 'home');
