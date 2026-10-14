@@ -23,9 +23,15 @@ jobs:
         uses: actions/checkout@v5
 
       # 容器内构建：与服务器环境解耦，Node/pnpm 版本锁死，宿主机无需装任何东西
-      # pnpm store 挂 named volume 缓存，二次部署安装走缓存
-      # ⚠️ npm_config_registry 指国内镜像：官方源在国内服务器直连会 ETIMEDOUT
-      #    （2026-10-14 实测挂了一次）。环境变量形式 npm/pnpm 两个工具都认。
+      #
+      # ⚠️ 两处都是踩过坑才加的（2026-10-14）：
+      #   1. registry 指国内镜像：官方源在国内服务器直连 ETIMEDOUT。
+      #      npm 用 env、pnpm 用 --registry 显式指定（pnpm 自己的配置优先级高，
+      #      只给 env 不管用）。
+      #   2. --store-dir 指到挂载的 named volume：pnpm 11 默认把 store 放在
+      #      **项目目录内**的 .pnpm-store —— 它会被 runner 清理工作区时连锅端走
+      #      （下次构建没缓存就得现拉，网络一抖就超时），且残留文件属主是 root，
+      #      会让 runner 清目录时报 EACCES。挪到卷里：缓存持久 + 不污染仓库。
       - name: Build (node:22-alpine)
         run: |
           docker run --rm \
@@ -34,6 +40,8 @@ jobs:
             -v site_pnpm_store:/root/.local/share/pnpm/store \
             node:22-alpine sh -c "npm i -g pnpm@11 --no-fund --no-audit \
               && pnpm install --frozen-lockfile \
+                   --registry=https://registry.npmmirror.com \
+                   --store-dir=/root/.local/share/pnpm/store \
               && pnpm build"
 
       # 静态产物发布到宿主 /var/www/personal（Caddy file_server 指向这里）
