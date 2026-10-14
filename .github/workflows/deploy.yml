@@ -36,13 +36,15 @@ jobs:
         run: |
           docker run --rm \
             -e npm_config_registry=https://registry.npmmirror.com \
+            -e HOST_UID=$(id -u) -e HOST_GID=$(id -g) \
             -v "$PWD":/app -w /app \
             -v site_pnpm_store:/root/.local/share/pnpm/store \
-            node:22-alpine sh -c "npm i -g pnpm@11 --no-fund --no-audit \
+            node:22-alpine sh -c 'npm i -g pnpm@11 --no-fund --no-audit \
               && pnpm install --frozen-lockfile \
                    --registry=https://registry.npmmirror.com \
                    --store-dir=/root/.local/share/pnpm/store \
-              && pnpm build"
+              && pnpm build \
+              && chown -R $HOST_UID:$HOST_GID /app'
 
       # 静态产物发布到宿主 /var/www/personal（Caddy file_server 指向这里）
       - name: Publish to /var/www/personal
