@@ -112,7 +112,8 @@ export interface ProjectHighlight {
 
 export interface ProjectIteration {
   version: string;
-  date: string;
+  /** 刻意不在页面上渲染时间节点：展示的是「做了什么」，不是「什么时候做的」。 */
+  date?: string;
   title: string;
   gain: string;
 }
@@ -133,15 +134,15 @@ export const projects: ProjectItem[] = [
     name: '企业级 RAG 智能问答系统',
     meta: '全栈 · AI Agent · 2026.09 – 2026.10',
     summary:
-      '公司内部知识库问答系统：上传文档自动解析入库，提问后流式作答并附引用溯源。每次改动都有自动化测试与评测集兜底，六容器一键起停、CI/CD 自动发布。',
-    tags: ['FastAPI', 'LangChain', 'Chroma', 'Vue 3', 'NestJS', 'MySQL', 'Docker', 'RAG'],
+      '公司内部知识库问答系统：上传文档后台解析入库，提问流式作答并附引用溯源。从本机原型一路做到域名 HTTPS 上线，六容器一键起停、push main 自动发布；每次改动有自动化测试与检索评测集兜底。',
+    tags: ['FastAPI', 'LangChain', 'Chroma', 'Vue 3', 'NestJS', 'MySQL', 'Caddy', 'Docker', 'RAG'],
     stack: [
-      '后端：FastAPI + LangChain LCEL + Celery',
+      '后端：FastAPI + LangChain LCEL + Celery（解析异步化）',
       '检索：Chroma 向量库 + bge-large-zh（1024d）+ bge-reranker-v2-m3 重排（硅基流动）',
-      '网关：NestJS（Express 4）+ passport-jwt，全局 fail-closed 鉴权',
-      '数据：MySQL（业务真相源）+ Redis（任务队列）+ Chroma（向量），三层各司其职',
+      '网关：NestJS（Express 4）+ passport-jwt，全局 fail-closed 鉴权 + 路径级授权',
+      '数据：MySQL（业务真相源）+ Redis（任务队列与短期缓存）+ Chroma（向量），三层各司其职',
       '前端：Vue 3 + TS + Vite + Pinia；管理端 Element Plus',
-      '部署：Docker Compose 六容器 + 边缘 nginx + TLS + CI/CD 自动发布',
+      '部署：Docker Compose 六容器，端口只绑 127.0.0.1 不对外暴露；边缘 Caddy 自动签发续期证书并反代；GitHub Actions 自托管 runner 自动发布；每日 03:20 整站备份上 COS',
     ],
     metrics: [
       { label: '自动化测试', value: '1376 项' },
@@ -151,7 +152,7 @@ export const projects: ProjectItem[] = [
     highlights: [
       {
         title: '流式链路选型 NDJSON 而非 SSE',
-        body: '网关统一错误体只包自身错误、后端错误体原样透传——包装会破坏流式；配套 nginx 关 proxy_buffering、read_timeout 放到 300s，否则响应被攒成一坨整段下发。',
+        body: '选 NDJSON 不是跟风：单条 JSON 流比 SSE 的事件帧更好穿代理，也更容易在网关层保持原样透传。配套三处——网关统一错误体只包自身错误、后端错误体原样透传（包装会破坏流式），转发时显式带 Accept-Encoding: identity 少一层压缩缓冲，边缘 Caddy 默认即流式转发不攒包。',
       },
       {
         title: '信任边界 fail-closed',
@@ -163,7 +164,7 @@ export const projects: ProjectItem[] = [
       },
       {
         title: '评测驱动检索决策',
-        body: '先建 40 条 golden 评测集再动检索：recall@5 0.8944 / recall@10 0.9389 / MRR@10 0.8889 / 库外拒答 10/10。BM25+RRF 混合检索 A/B 增益不达标，功能做完但默认关闭——用数据替感觉做决策。',
+        body: '先建 40 条 golden 评测集再动检索：recall@5 0.8944 / recall@10 0.9389 / MRR@10 0.8889 / 库外拒答 10/10。BM25+RRF 混合检索 A/B 增益不达标，功能做完但默认关闭——用数据替感觉做决策。上线后又抓到一件评测测不出来的事：链上检索走的是另一条管线，整段绕过了融合（评测与断言全绿、线上没生效），修完补了源码级守卫和「回归环境钉死开关」。',
       },
       {
         title: '两个实测复现的真实漏洞',
@@ -177,69 +178,68 @@ export const projects: ProjectItem[] = [
     iterations: [
       {
         version: 'v1.0.0',
-        date: '09-22',
-        title: '本地从 0 到跑通',
-        gain: '文档加载切分 / 向量化 / 检索 / 重排 / 意图路由 / 流式问答八模块，Chroma、FAISS 双向量库实现',
+        title: '本机从 0 到能问能答',
+        gain: '跟着教学视频把八个模块跑通：文档加载切分、向量化、检索、重排、意图路由、多轮记忆、流式问答。向量库写了 Chroma 与 FAISS 两个实现可切换，大模型接 ollama / 硅基流动 / OpenAI 三家。跑通当天就把没做的事列清楚：会话还在内存里重启即丢、任何人都能访问、没有数据库——这三件成了后面整个大版本的待办。',
       },
       {
         version: 'p0.1b',
-        date: '09-23',
-        title: '会话与问答记录落库',
-        gain: '重启不再丢历史，问答记录可用 SQL 审计；同时修正「会话存 Redis」的分层错误',
+        title: '会话与问答记录进数据库',
+        gain: '重启不再丢历史，问答记录能用 SQL 审计。中途改过一次方向：先把会话存进了 Redis，后来认定这是分层错误——内存库扛不住「永久业务资产」，返工改存 MySQL，Redis 退回只做队列和短期缓存。返工原因和代价写进了迭代文档。',
       },
       {
-        version: 'p0.3b',
-        date: '09-23',
-        title: '异步解析 + 进度可见',
-        gain: '大文件上传提交即返回，后台进程解析；进度条、失败原因、一键重试上线，725 项测试 0 失败',
+        version: 'p0.2',
+        title: '给系统装门',
+        gain: '加 NestJS 网关与 JWT 全局守卫，从「谁都能访问」变成必须登录。代理写成 Controller 里的通配路由而不是中间件——中间件跑在守卫前面，那样写鉴权会整段失效，而且日志一切正常，极难发现。',
+      },
+      {
+        version: 'p0.3',
+        title: '解析搬出请求，进度看得见',
+        gain: '大文件不再在请求里转圈：提交即返回，解析丢给后台进程。状态真相源放在 MySQL 的 document.status 而不是队列，配了进度条、失败原因、一键重试，以及被 kill 掉留下的僵尸任务回收。725 项测试 0 失败。',
+      },
+      {
+        version: 'p0.4',
+        title: '引用可点、可溯源、删得干净',
+        gain: '每条引用带 chunk_id，点开能看切片全文和它出自哪份文档；修掉一个「只问一轮永远试不出来」的记录错位（刷新之后引用还在）；删文档时对应切片一并清掉。',
       },
       {
         version: 'p1.5b',
-        date: '09-24',
-        title: '整套系统容器化',
-        gain: '六容器一条命令起停，健康检查与依赖顺序写死在编排文件；联调抓出并修复 3 个真问题',
+        title: '整套系统进容器',
+        gain: '中间件和四个应用全部容器化，一条命令起停；健康检查与依赖顺序写进编排文件，不靠启动脚本里 sleep 碰运气。联调时抓出并修掉三个只在容器里才现形的问题。',
       },
       {
         version: 'p1.6',
-        date: '09-24',
-        title: '模型全部上云',
-        gain: '本机不再加载模型权重；嵌入 512d → 1024d，知识库按新维度整库重灌（24 篇 / 106 切片）',
+        title: '模型搬到云上',
+        gain: '本机不再加载模型权重，嵌入与重排都走接口。嵌入从 512 维换到 1024 维——换维度等于换索引，知识库按新维度整库重灌，不能混在同一个 collection 里。',
       },
       {
-        version: 'p2.12b',
-        date: '10-08',
-        title: '封「伪造身份」漏洞',
-        gain: '此前改请求头即可自称管理员（实测复现）；信任边界测试 47 → 103 项全绿',
+        version: 'p2.12b / p2.14f0',
+        title: '封掉两个能实测复现的身份漏洞',
+        gain: '一个是改请求头就能自称管理员，自己 curl 复现过；另一个更隐蔽：某些客户端发来的请求网关会「忘记这是谁」，伪造的身份头于是跟着进后门。两次都补了把修复拆掉、测试必须变红的反向验证，不留假断言。信任边界测试 47 → 103 项。',
       },
       {
         version: 'p2.14',
-        date: '10-08',
         title: '知识库写权限收口',
-        gain: '四条写路由此前零守卫；越权回归 177 项 + 11 条反向验证，此后新增写接口忘挂守卫测试会红',
+        gain: '上传、删除、重灌这几条写路由此前一条守卫都没有，等于任何人都能改全公司共用的知识库。按 kb_role 收口后补了越权回归 177 项与 11 条反向验证——以后谁新增写接口忘了挂守卫，测试会红。顺手修掉两个真 bug：写死的动作名字典会在新增动作时 500，以及验收脚本遇第一个失败就停、导致后面六个模块连续三个版本一次都没跑过。',
       },
       {
-        version: 'p2.15',
-        date: '10-07',
-        title: 'Token 额度体系',
-        gain: '按人 × 自然月统计，输入 / 输出 / 缓存命中三类分开计（混算会算错钱）；默认每人每月 100,000 tokens',
+        version: 'p2.15 → p3.1',
+        title: '额度体系，以及推翻自己一次决定',
+        gain: '先按人 × 自然月把用量算准，输入 / 输出 / 命中服务商缓存三类分开计（混在一起会算错钱）。当时把「超额之后会发生什么」定死成只提醒不阻断，还写进启动校验防止被悄悄改掉。系统对外上线后这个判断不成立——成本不可控，于是推翻成超限 429 拦截，错误体带 used/quota/period，流式接口在 200 头发出前判定。推翻理由和旧断言的改写都记在迭代文档。',
       },
       {
-        version: 'p3.1',
-        date: '10-11',
-        title: '额度 block 档',
-        gain: '超限提问 429 拦截，错误体带 used/quota/period；流式接口在 200 头发出前判定，保证可返回错误',
+        version: 'p3.3',
+        title: '检索第一次有了尺子',
+        gain: '40 条人工标注题库（专名、编号条款、口语化改写、跨文档综合，外加 10 条库外拒答），一条命令量出 recall@5/10/20、MRR@10、拒答正确率。基线 recall@5 0.8944、MRR@10 0.8889、库外拒答 10/10。读出一个反直觉的结论：recall@10 等于 recall@20，说明瓶颈在排序不在召回面。',
       },
       {
         version: 'p3.4',
-        date: '10-12',
-        title: '混合检索 A/B 判决',
-        gain: 'recall@5 +4.45pp，但 recall@20 判据结构性不可过 → RETRIEVAL_HYBRID 保持 false，翻开关的决策点留给人',
+        title: '混合检索做完，但没开',
+        gain: 'BM25 + RRF 双路召回做完，recall@5 提升 4.45pp，把基线唯一失手的编号题救了回来，但 recall@20 那条判据结构性过不了（基线在 k=20 已摸到天花板）。结论是功能上线、开关保持 false，翻不翻留给人判断。上线后又抓到评测测不出来的事：链上检索走的是另一条管线，整段绕过融合，评测与断言全绿而线上没生效。',
       },
       {
         version: '上线',
-        date: '10-10~11',
-        title: '域名 HTTPS + 自动发布',
-        gain: 'ICP 备案 → 腾讯云轻量 → 边缘 nginx + certbot → qa.nianan.site；push main 即自动拉取重建重启并探活；每天 03:20 整站备份上 COS',
+        title: '备案、域名、HTTPS 与自动发布',
+        gain: 'ICP 备案通过后在腾讯云轻量上开放 80/443，边缘用宿主机的 Caddy 反代并自动签发续期证书，应用容器端口只绑 127.0.0.1 不直接对外，qa.nianan.site 上线。push main 后服务器上的 runner 自动拉代码、重建、重启、探活；每天 03:20 把数据库、上传文件、知识库打包备份到 COS。',
       },
     ],
   },
