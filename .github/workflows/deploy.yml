@@ -24,9 +24,12 @@ jobs:
 
       # 容器内构建：与服务器环境解耦，Node/pnpm 版本锁死，宿主机无需装任何东西
       # pnpm store 挂 named volume 缓存，二次部署安装走缓存
+      # ⚠️ npm_config_registry 指国内镜像：官方源在国内服务器直连会 ETIMEDOUT
+      #    （2026-10-14 实测挂了一次）。环境变量形式 npm/pnpm 两个工具都认。
       - name: Build (node:22-alpine)
         run: |
           docker run --rm \
+            -e npm_config_registry=https://registry.npmmirror.com \
             -v "$PWD":/app -w /app \
             -v site_pnpm_store:/root/.local/share/pnpm/store \
             node:22-alpine sh -c "npm i -g pnpm@11 --no-fund --no-audit \
