@@ -61,7 +61,7 @@
 <body>
 <div class="wrap">
   <h1>Mood 后台 <em>·</em> nianan.site</h1>
-  <p class="sub">「Are you happy today」提交记录。口令即后端 <code>MOOD_ADMIN_TOKEN</code>，仅存于本页会话，不落任何存储。</p>
+  <p class="sub">「Are you happy today」提交记录。口令即后端 <code>MOOD_ADMIN_TOKEN</code>，记在这台浏览器里，下次打开会自动填上。</p>
 
   <div class="bar">
     <input id="token" type="password" placeholder="查看口令（MOOD_ADMIN_TOKEN）" autocomplete="off">
@@ -81,11 +81,30 @@
 
 <script>
 (function () {
+  var TOKEN_KEY = 'nianan.mood-admin.token';
   var $msg = document.getElementById('msg');
   var $result = document.getElementById('result');
   var $token = document.getElementById('token');
   var $limit = document.getElementById('limit');
   var $reload = document.getElementById('reload');
+
+  function readToken() {
+    try { return localStorage.getItem(TOKEN_KEY) || ''; }
+    catch (e) { return ''; }
+  }
+
+  function writeToken(token) {
+    try { localStorage.setItem(TOKEN_KEY, token); }
+    catch (e) { /* 无痕模式写不进时，这次仍用输入框里的口令 */ }
+  }
+
+  function clearToken() {
+    try { localStorage.removeItem(TOKEN_KEY); }
+    catch (e) { /* 清不掉也不影响这次提示 */ }
+  }
+
+  var cached = readToken();
+  if (cached) $token.value = cached;
 
   function esc(s) {
     return String(s == null ? '' : s)
@@ -109,12 +128,16 @@
 
     fetch('/api/mood/admin?token=' + encodeURIComponent(token) + '&limit=' + $limit.value)
       .then(function (res) {
-        if (res.status === 401) throw new Error('口令不正确。');
+        if (res.status === 401) {
+          clearToken();
+          throw new Error('口令不正确。');
+        }
         if (res.status === 503) throw new Error('查看功能未启用：服务器未配置 MOOD_ADMIN_TOKEN。');
         if (!res.ok) throw new Error('接口异常（HTTP ' + res.status + '）。');
         return res.json();
       })
       .then(function (data) {
+        writeToken(token);
         var items = data.items || [];
         $msg.className = 'msg';
         $msg.textContent = '共 ' + data.total + ' 条提交，本次展示 ' + items.length + ' 条。';

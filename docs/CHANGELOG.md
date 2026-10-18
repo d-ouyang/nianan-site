@@ -10,6 +10,7 @@
 
 | 版本 | 日期 | 内容 | commit |
 |---|---|---|---|
+| 0.10.1 | 2026-10-18 | 心情后台记住查看口令：加载成功后写入本机 localStorage，下次打开自动填入；口令被拒时清掉缓存 | （见 git log） |
 | 0.10.0 | 2026-10-15 | MoodNote 心情表单接真后端（滑杆 + 弯曲邮箱输入，提交到同源 `/api/mood/submit`，四种结果提示：成功 / 冷却重复 / 限频 / 失败）；新增 `public/mood-admin.html` 心情后台页（凭 MOOD_ADMIN_TOKEN 查看）；bits 组件库补 CurvedInput / ShinyText / SwipeToast / TextType；Hero 接 TextType、区块 id hero→home 等打磨。**RAG 项目卡重写**：部署表述纠正为边缘 Caddy（服务器实际无 nginx，原写 nginx+certbot 有误），补端口只绑 127.0.0.1 / 自动续期证书 / 自托管 runner 自动发布 / 每日 COS 备份；迭代区按 1.0.0→2.0.0→3.0.0 文档重写为 12 条并去掉时间字段；NDJSON 亮点补 p3.4「链上检索绕过融合」线上事故 | （见 git log） |
 | 0.9.4 | 2026-10-13 | RAG 项目收敛：规模数字去掉「版本 tag / 3 周上线 / 35 文档·90 切片」（摘要同步去掉对应表述）；关键迭代区不再展示时间节点（组件移除日期渲染） | （见 git log） |
 | 0.9.3 | 2026-10-13 | 锅圈数据微调：零售全链路改为「定位→加购→结算→下单→售后」；新增「数据埋点」亮点（神策 SDK 默认全埋点 + 自定义点击事件 + IntersectionObserver 可视区域曝光三层覆盖） | （见 git log） |
