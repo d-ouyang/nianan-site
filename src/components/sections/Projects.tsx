@@ -123,7 +123,7 @@ function ProjectCard({ project }: { project: ProjectItem }) {
 export default function Projects() {
   return (
     <SectionFrame id="projects" eyebrow="Projects" title="项目">
-      <p className="mb-6 text-sm text-faint">两个主力项目。点开卡片看技术栈、规模数字、亮点难点与逐版量化收益。</p>
+      <p className="mb-6 text-sm text-faint">三个项目。点开卡片看技术栈、规模数字、亮点难点与逐版量化收益。</p>
       <ul className="grid gap-4 lg:grid-cols-2">
         {projects.map((project) => (
           <ProjectCard key={project.name} project={project} />

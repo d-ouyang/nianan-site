@@ -8,7 +8,7 @@ export const profile = {
   /** 邮箱 ding.ouyang 的写法：名在前，姓在后。 */
   nameEn: 'Ding Ouyang',
   site: 'nianan.site',
-  role: '前端·全栈·AI Agent',
+  role: 'AI 应用 / Agent 工程师（前端出身）',
 };
 
 /** 年限和总时段写在时间轴上方，不记到某一家公司头上。 */
@@ -74,8 +74,9 @@ export const skillGroups: SkillGroup[] = [
       'Vite',
       'Pinia',
       'Tailwind CSS',
-      'UniApp / 小程序',
-      'Canvas / WebGL',
+      'UniApp 条件编译',
+      '分包 / 预加载',
+      'WebGL 降级',
     ],
   },
   {
@@ -85,13 +86,13 @@ export const skillGroups: SkillGroup[] = [
   {
     name: 'AI Agent 工程',
     items: [
-      '任务拆解',
-      '工具调用',
-      '工作流',
-      'RAG（检索增强）',
-      '向量数据库 / 重排',
-      'MCP',
-      '多 Agent 协作',
+      'LangChain LCEL / LangGraph',
+      'RAG：Chroma + bge + rerank',
+      '检索评测 recall/MRR',
+      'Groundedness / 拒答',
+      '多 Agent：规划·路由·ReAct·DAG',
+      '工具白名单 fail-closed',
+      'NDJSON 流式事件',
     ],
   },
   {
@@ -134,8 +135,17 @@ export const projects: ProjectItem[] = [
     name: '企业级 RAG 智能问答系统',
     meta: '全栈 · AI Agent · 2026.09 – 2026.10',
     summary:
-      '公司内部知识库问答系统：上传文档后台解析入库，提问流式作答并附引用溯源。从本机原型一路做到域名 HTTPS 上线，六容器一键起停、push main 自动发布；每次改动有自动化测试与检索评测集兜底。',
-    tags: ['FastAPI', 'LangChain', 'Chroma', 'Vue 3', 'NestJS', 'MySQL', 'Caddy', 'Docker', 'RAG'],
+      '面向企业内部制度问答：在 4C4G 轻量机上把可引用、可拒答、可评测做成能上线的系统。40 条 golden 卡住检索决策，身份伪造洞用反向测试钉死，push main 自动发布。',
+    tags: [
+      'LangChain LCEL',
+      'NDJSON 流式',
+      'Golden 评测',
+      'fail-closed 网关',
+      'Celery 解析',
+      'Groundedness',
+      '身份反向测试',
+      '混合检索否决',
+    ],
     stack: [
       '后端：FastAPI + LangChain LCEL + Celery（解析异步化）',
       '检索：Chroma 向量库 + bge-large-zh（1024d）+ bge-reranker-v2-m3 重排（硅基流动）',
@@ -247,8 +257,8 @@ export const projects: ProjectItem[] = [
     name: '锅圈商城多端小程序',
     meta: '公司项目 · UniApp 多端 · 2021 – 2026',
     summary:
-      '锅圈食汇（02517.HK）核心 C 端商城小程序。一套代码交付微信、支付宝、抖音、App、i锅圈五个端，并以此为模板裂变出锅圈小炒等独立业态；覆盖门店定位、加购、拼团 / 秒杀 / 接龙、下单结算、优惠券、积分、会员等级全链路零售场景。',
-    tags: ['UniApp', 'Vue 3', 'TypeScript', 'Pinia', 'Vite', '小程序', 'WebSocket', '性能优化'],
+      '锅圈食汇（02517.HK）核心 C 端商城小程序。一套代码交付微信、支付宝、抖音、App、i锅圈五个端，并以此为模板裂变出锅圈小炒等独立业态；覆盖门店定位、加购、拼团 / 秒杀 / 接龙、下单结算、优惠券、积分、会员等级全链路零售场景。大促主包降 44%，TTI 降一半。',
+    tags: ['UniApp 多端', '条件编译', '分包预加载', '主包瘦身', 'WebSocket', 'AI 点单', '神策埋点'],
     stack: [
       'Vue 3 + TypeScript + UniApp 3.0 + Pinia + Vite',
       'UnoCSS（小程序 rpx / H5 rem 双预设）+ SCSS + uView',
@@ -257,9 +267,9 @@ export const projects: ProjectItem[] = [
       '多分支管理：master / toutiao / xiao_chao / b_mall / f2b / igq / songhe 等 8 条业务分支',
     ],
     metrics: [
+      { label: '主包体积', value: '1.96→1.10 MB' },
+      { label: '首屏 TTI', value: '3.2→1.4 s' },
       { label: '交付端', value: '5 端一套代码' },
-      { label: '裂变业态', value: '小炒 / B2C / F2B / i锅圈' },
-      { label: '零售全链路', value: '定位→加购→结算→下单→售后' },
     ],
     highlights: [
       {
@@ -283,8 +293,8 @@ export const projects: ProjectItem[] = [
         body: 'WebSocket 单例客户端双定时器心跳（10s ping + 3s pong 超时窗口检测半连接），页面关闭经 getCurrentPages() 检测自动销毁连接；阿里云 NLS 流式 TTS 全链路不落盘（Base64 解码三级降级兼容红米旧机），PCM 边收边播靠 _nextStartTime 无缝拼接；24 种意图 + 意图继承快照，结算卡 6 类异常商品硬失效 / 软异常分流。',
       },
       {
-        title: '「一起吃」多人社交拼单',
-        body: '共享购物车 WebSocket 实时同步，四级状态机（页面 / 任务 / 用户 / 结算回退）约束不同身份可用操作；发起人点结算即把任务锁进「提交订单中」阻止他人继续加购，回退时显式解锁；~170 行加购逻辑覆盖普通品 / 套餐 / 换购 / 赠品四类，乐观锁 UI 先跑动画再异步请求、失败回滚数量。',
+        title: '「一起吃」共享购物车',
+        body: '共享购物车用 WebSocket 同步。发起人点结算就把任务锁进「提交订单中」，别人不能再加购，回退时解锁。加购覆盖普通品、套餐、换购、赠品，界面先动，请求失败再把数量滚回去。',
       },
       {
         title: 'CMS 配置化渲染，运营自助上活动页',
@@ -325,6 +335,73 @@ export const projects: ProjectItem[] = [
         date: '持续',
         title: '拼单裂变拉新',
         gain: '多人聚餐「各点各的」变共享购物车并行加购，微信分享链接入队，提升社交电商转化',
+      },
+    ],
+  },
+  {
+    // 数字来源：office-multiagent/docs/RELEASES.md（p6.29 校验器、p6.30 真机 236 行、p6.32 pytest 361 passed）、
+    // docs/分析-2026-10-23-销售总结任务复盘.md、backend/app/core/config.py 的 rag_service_username、
+    // backend/app/orchestration/validator.py（不阻断、只标注）。
+    name: '多 Agent 企业办公助手',
+    meta: '个人项目 · LangGraph · 2026',
+    summary:
+      '销售要一份上海今年的订单明细，再写成带趋势图的总结。编排走规划、路由、ReAct 或 DAG，过程用 NDJSON 流出来。记忆里的「制度」曾经把纯取数拐进知识库检索；意图只看本轮原文之后，同一条任务跑成 236 行明细、一张趋势图、一份嵌图文档。',
+    tags: [
+      'LangGraph',
+      '多 Agent',
+      'DAG 并行',
+      '工具注册表',
+      '配额预扣',
+      'NDJSON',
+      '共享 RAG 网关',
+      'raw_text 隔离',
+    ],
+    stack: [
+      '编排：Python 3.13 + FastAPI + LangGraph（规划 / 路由 / ReAct·DAG）',
+      '流式：NDJSON 事件；工具按白名单挂载，未知技能 fail-closed 回落',
+      '产物链：export_orders 出明细和 export_id，render_chart 吃 export_id，write_document 嵌图',
+      '数据：MySQL 为真相源，Redis 做队列和缓存，向量可复用共享 Chroma',
+      '网关：与 RAG 共用身份头约定；知识库调用仍用服务号 office-service（已知债，下一步改成真实用户）',
+      '校验：终答硬数字对账工具观察，对不上只发事件，不阻断、不重跑',
+    ],
+    metrics: [
+      { label: '销售真机', value: '236 行明细' },
+      { label: '后端单测', value: '361 通过' },
+      { label: '知识库身份', value: '仍是服务号' },
+    ],
+    highlights: [
+      {
+        title: '意图只看本轮原文',
+        body: '真跑过一次事故：用户记忆里有「财务制度」，规划器把「查上海订单」判成还要检索知识库，分数从 2.5 的单任务抬到 4.5 的多任务。修法是 TaskState 增加 raw_text，意图、复杂度和拆分只读本轮原文；记忆仍注入给 Agent，不再喂给规划器。回归用例是记忆含「制度」、本轮没有检索词，就不进知识库。',
+      },
+      {
+        title: '明细、图、文档串成一条产物链',
+        body: '原来查订单只能聚合，画图只认上传表的 clean_id，写文档不能嵌图，所以「明细表 + 趋势图总结」三件事一件都交不出。补上 export_orders（csv/xlsx，手机号脱敏，表里没有的列整列省略并说明），render_chart 同时接受 export_id，write_document 用 image_file 嵌图。同一条原话重放：意图只剩 analysis，导出 236 行（支付方式列省略），图嵌进 docx，终答不再把表格贴两遍。',
+      },
+      {
+        title: '数字对不上只标注，不阻断',
+        body: '终答里的硬数字（千分位、万/亿、小数）和本次工具观察、任务原文对账。对不上就发 result_validator 事件并记 WARNING，不另调模型、不重跑、不把回答拦下来。小整数和用户自己写在题里的数字不参与，避免满屏误报。开关在 RESULT_VALIDATION。',
+      },
+      {
+        title: '知识库调用仍用服务号',
+        body: '办公助手和 RAG 共用网关的身份头，但 rag_retrieve 注入的用户名仍是配置里的 office-service，不是当前办公用户。用量和溯源会记到服务号上。这是已知债：先在管理端把不一致标出来，下一步再改成真实用户名。不把它写成已经按人隔离。',
+      },
+    ],
+    iterations: [
+      {
+        version: 'p6.29',
+        title: '校验器上线',
+        gain: '终答数字对账工具观察，对不上只标注。当时全量 pytest 320 passed。',
+      },
+      {
+        version: 'p6.30',
+        title: '销售链路跑通',
+        gain: 'raw_text 隔离 + 明细导出 + 嵌图。原话重放得到 236 行 xlsx 和嵌图文档。当时全量 pytest 335 passed。',
+      },
+      {
+        version: 'p6.32',
+        title: '单测基线',
+        gain: '全量 pytest 361 passed / 3 skipped，作为卡片上「361 通过」的出处。其后版本有新增用例，这个数字不再代表最新总数。',
       },
     ],
   },
