@@ -12,8 +12,8 @@ export const profile = {
 };
 
 /** 年限和总时段写在时间轴上方，不记到某一家公司头上。 */
-export const experienceNote = '前端开发 10 年，AI Agent 开发 1 年。';
-export const experienceSpan = '2017.03 – 2026.08';
+export const experienceNote = '互联网零售研发 9 年，近两年独立完成两套 AI 系统。';
+export const experienceSpan = '2017.02 – 至今';
 
 export interface TimelineItem {
   period: string;
@@ -23,8 +23,8 @@ export interface TimelineItem {
 
 export const experience: TimelineItem[] = [
   {
-    period: '2021.03 – 2026.08',
-    title: 'web前端研发工程师',
+    period: '2021.03 – 至今',
+    title: '前端工程师（AI 应用项目研发方向）',
     org: '锅圈食品（上海）股份有限公司',
   },
   {
@@ -68,31 +68,33 @@ export const skillGroups: SkillGroup[] = [
   {
     name: '前端',
     items: [
+      'HTML5',
+      'CSS3',
+      'JavaScript',
       'Vue 3',
       'React',
       'TypeScript',
       'Vite',
       'Pinia',
-      'Tailwind CSS',
-      'UniApp 条件编译',
-      '分包 / 预加载',
-      'WebGL 降级',
+      'UniApp',
+      'Flutter',
+      'WebGL',
     ],
   },
   {
     name: '后端',
-    items: ['Node.js', 'NestJS', 'Python', 'FastAPI', 'LangChain', 'REST / NDJSON 流式', 'JWT 鉴权'],
+    items: ['Node.js', 'NestJS', 'Python', 'FastAPI', 'LangGraph', 'RESTful API', 'JWT'],
   },
   {
     name: 'AI Agent 工程',
     items: [
       'LangChain LCEL / LangGraph',
       'RAG：Chroma + bge + rerank',
-      '检索评测 recall/MRR',
-      'Groundedness / 拒答',
-      '多 Agent：规划·路由·ReAct·DAG',
-      '工具白名单 fail-closed',
-      'NDJSON 流式事件',
+      'Recall / MRR / Refusal',
+      'Planning · Routing · ReAct · DAG',
+      'checkpointer',
+      'Token Governance',
+      'Tracing',
     ],
   },
   {
@@ -132,14 +134,13 @@ export interface ProjectItem {
 
 export const projects: ProjectItem[] = [
   {
-    name: '企业级 RAG 智能问答系统',
-    meta: '全栈 · AI Agent · 2026.09 – 2026.10',
+    name: '知衡引擎 · 企业私有知识问答平台',
+    meta: '个人项目 · RAG 全栈 · 2026',
     summary:
-      '面向企业内部制度问答：在 4C4G 轻量机上把可引用、可拒答、可评测做成能上线的系统。40 条 golden 卡住检索决策，身份伪造洞用反向测试钉死，push main 自动发布。',
+      '面向企业制度与零售经营文档的可信问答：答案能反查到原文切片，检索前先过权限，答不出敢拒答。检索调参不靠感觉——40 条人工标注黄金集加三项指标做成上线门禁，混合检索 A/B 没跑赢纯向量就默认关闭。',
     tags: [
       'LangChain LCEL',
-      'NDJSON 流式',
-      'Golden 评测',
+      'Recall / MRR / Refusal',
       'fail-closed 网关',
       'Celery 解析',
       'Groundedness',
@@ -149,6 +150,8 @@ export const projects: ProjectItem[] = [
     stack: [
       '后端：FastAPI + LangChain LCEL + Celery（解析异步化）',
       '检索：Chroma 向量库 + bge-large-zh（1024d）+ bge-reranker-v2-m3 重排（硅基流动）',
+      '切分：标题层级 + 表格行组结构感知分块（chunk_id = 文档ID:序号，是引用反查的锚点）；PyMuPDF 默认通道，MinerU 可选保表格，失败回退',
+      '治理：检索前知识库 ACL 过滤、引用切片回查、审计日志、Token 配额与用量统计',
       '网关：NestJS（Express 4）+ passport-jwt，全局 fail-closed 鉴权 + 路径级授权',
       '数据：MySQL（业务真相源）+ Redis（任务队列与短期缓存）+ Chroma（向量），三层各司其职',
       '前端：Vue 3 + TS + Vite + Pinia；管理端 Element Plus',
@@ -160,6 +163,14 @@ export const projects: ProjectItem[] = [
       { label: '部署形态', value: '6 容器一键起停' },
     ],
     highlights: [
+      {
+        title: '切分先于调参',
+        body: '制度类文档的答案单位是「条款」和「表格行组」，按固定字数滑窗会把条款切断——切断了就检索不回来。所以先做标题层级 + 表格行组的结构感知切分，再谈检索模型，这一步对效果的影响比换模型大。切片带稳定 chunk_id，答案里的引用直接反查到原文那一段。',
+      },
+      {
+        title: '检索实验与上线门禁',
+        body: '建立 40 条人工标注黄金集（制度条款、表格数据、应当拒答三类）与 Recall@K / MRR / 拒答正确率评测；BM25＋RRF 融合与纯向量做 A/B，未跑赢基线即按门禁默认关闭，把复杂度留给收益明确的环节。',
+      },
       {
         title: '流式链路选型 NDJSON 而非 SSE',
         body: '选 NDJSON 不是跟风：单条 JSON 流比 SSE 的事件帧更好穿代理，也更容易在网关层保持原样透传。配套三处——网关统一错误体只包自身错误、后端错误体原样透传（包装会破坏流式），转发时显式带 Accept-Encoding: identity 少一层压缩缓冲，边缘 Caddy 默认即流式转发不攒包。',
@@ -255,10 +266,10 @@ export const projects: ProjectItem[] = [
   },
   {
     name: '锅圈商城多端小程序',
-    meta: '公司项目 · UniApp 多端 · 2021 – 2026',
+    meta: '公司项目 · UniApp 多端 · 2021 – 至今',
     summary:
       '锅圈食汇（02517.HK）核心 C 端商城小程序。一套代码交付微信、支付宝、抖音、App、i锅圈五个端，并以此为模板裂变出锅圈小炒等独立业态；覆盖门店定位、加购、拼团 / 秒杀 / 接龙、下单结算、优惠券、积分、会员等级全链路零售场景。大促主包降 44%，TTI 降一半。',
-    tags: ['UniApp 多端', '条件编译', '分包预加载', '主包瘦身', 'WebSocket', 'AI 点单', '神策埋点'],
+    tags: ['UniApp 多端', '条件编译', '主包瘦身', 'WebSocket', 'AI 点单', '神策埋点'],
     stack: [
       'Vue 3 + TypeScript + UniApp 3.0 + Pinia + Vite',
       'UnoCSS（小程序 rpx / H5 rem 双预设）+ SCSS + uView',
@@ -342,23 +353,25 @@ export const projects: ProjectItem[] = [
     // 数字来源：office-multiagent/docs/RELEASES.md（p6.29 校验器、p6.30 真机 236 行、p6.32 pytest 361 passed）、
     // docs/分析-2026-10-23-销售总结任务复盘.md、backend/app/core/config.py 的 rag_service_username、
     // backend/app/orchestration/validator.py（不阻断、只标注）。
-    name: '多 Agent 企业办公助手',
+    name: '序域协作 · 多 Agent 办公任务编排平台',
     meta: '个人项目 · LangGraph · 2026',
     summary:
-      '销售要一份上海今年的订单明细，再写成带趋势图的总结。编排走规划、路由、ReAct 或 DAG，过程用 NDJSON 流出来。记忆里的「制度」曾经把纯取数拐进知识库检索；意图只看本轮原文之后，同一条任务跑成 236 行明细、一张趋势图、一份嵌图文档。',
+      '销售要一份上海今年的订单明细，再写成带趋势图的总结。编排走规划、路由、ReAct 或 DAG，过程用 NDJSON 流出来；任务状态落库可暂停续跑，Token 预扣结算有账本。记忆里的「制度」曾经把纯取数拐进知识库检索；意图只看本轮原文之后，同一条任务跑成 236 行明细、一张趋势图、一份嵌图文档。',
     tags: [
       'LangGraph',
       '多 Agent',
       'DAG 并行',
       '工具注册表',
-      '配额预扣',
-      'NDJSON',
+      'Token Governance',
       '共享 RAG 网关',
       'raw_text 隔离',
     ],
     stack: [
       '编排：Python 3.13 + FastAPI + LangGraph（规划 / 路由 / ReAct·DAG）',
       '流式：NDJSON 事件；工具按白名单挂载，未知技能 fail-closed 回落',
+      '可靠性：任务状态落库 + checkpointer 续跑（resume 前先 get_state 校验存档，防静默重跑）',
+      '账本：Token 预扣 / 结算两阶段，取消与报错按预扣额结算不退；逐步用量差值采样',
+      'Skill：能力包契约 + 注册表 + 工具白名单，未完成能力默认禁用灰度接入',
       '产物链：export_orders 出明细和 export_id，render_chart 吃 export_id，write_document 嵌图',
       '数据：MySQL 为真相源，Redis 做队列和缓存，向量可复用共享 Chroma',
       '网关：与 RAG 共用身份头约定；知识库调用仍用服务号 office-service（已知债，下一步改成真实用户）',
@@ -366,13 +379,21 @@ export const projects: ProjectItem[] = [
     ],
     metrics: [
       { label: '销售真机', value: '236 行明细' },
-      { label: '后端单测', value: '361 通过' },
-      { label: '知识库身份', value: '仍是服务号' },
+      { label: '回归用例', value: '450+ 全绿' },
+      { label: '任务能力', value: '暂停 / 续跑' },
     ],
     highlights: [
       {
         title: '意图只看本轮原文',
         body: '真跑过一次事故：用户记忆里有「财务制度」，规划器把「查上海订单」判成还要检索知识库，分数从 2.5 的单任务抬到 4.5 的多任务。修法是 TaskState 增加 raw_text，意图、复杂度和拆分只读本轮原文；记忆仍注入给 Agent，不再喂给规划器。回归用例是记忆含「制度」、本轮没有检索词，就不进知识库。',
+      },
+      {
+        title: '续跑前必须先看有没有存档',
+        body: '接入 checkpointer 之后发现一个反直觉行为：没有存档时直接 resume，框架不报错，会**静默从头重跑**——用户以为续上了，其实是重跑。所以续跑前先 get_state 校验，没有存档就按新任务走，并在事件里如实说明是重跑不是续跑。',
+      },
+      {
+        title: 'Token 预扣结算，取消不退',
+        body: '发起任务先按预估扣一笔，结束按实际用量结算；取消或报错按预扣额结算不退，防止反复取消刷额度。每一步的用量拿累计值做差值采样，不是每步单独查一次。',
       },
       {
         title: '明细、图、文档串成一条产物链',
@@ -401,7 +422,12 @@ export const projects: ProjectItem[] = [
       {
         version: 'p6.32',
         title: '单测基线',
-        gain: '全量 pytest 361 passed / 3 skipped，作为卡片上「361 通过」的出处。其后版本有新增用例，这个数字不再代表最新总数。',
+        gain: '全量 pytest 361 passed / 3 skipped。其后版本持续新增用例，卡片上的「450+ 全绿」取自最新回归。',
+      },
+      {
+        version: 'p5.1 – p5.4',
+        title: '可靠性加固',
+        gain: 'LLM 重试补 429/500 退避、DAG 层内失败隔离（单点失败不打断整层，取消信号仍上抛）、工具退避生效、checkpointer 可选 sqlite 真续跑。回归基线走到 450+ 全绿。',
       },
     ],
   },
