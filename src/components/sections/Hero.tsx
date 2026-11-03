@@ -1,4 +1,5 @@
 import { useMemo, useRef } from 'react';
+import LogoMark from '@/components/bits/LogoMark';
 import MicroSlats from '@/components/bits/MicroSlats';
 import TargetCursor from '@/components/bits/TargetCursor';
 import TechText from '@/components/bits/TechText';
@@ -71,7 +72,11 @@ export default function Hero() {
       <div className="relative z-10 flex h-full w-full items-center overflow-y-auto px-6 py-28">
         <div className="mx-auto grid w-full max-w-5xl items-center gap-10 lg:grid-cols-[minmax(0,36rem)_minmax(0,1fr)] lg:gap-16">
         <div className="w-full rounded-3xl bg-canvas/35 p-6 backdrop-blur-sm sm:p-8">
-          <p className="font-mono text-xs tracking-[0.18em] text-accent uppercase">{profile.site}</p>
+          <div className="flex items-center gap-3">
+            {/* 品牌标志：开页一笔画出，点击可重播 */}
+            <LogoMark animated replayOnClick className="h-12 w-12 shrink-0 text-accent" />
+            <p className="font-mono text-xs tracking-[0.18em] text-accent uppercase">{profile.site}</p>
+          </div>
           <h1 className="mt-3 -ml-5 h-40 sm:h-48">
             <TechText
               text={profile.nameEn}

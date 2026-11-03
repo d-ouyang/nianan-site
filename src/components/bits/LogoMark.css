@@ -1,0 +1,24 @@
+/* 一笔画入场动画。
+   约束：dashoffset 的「静止值」必须是 0（完整显示）——
+   动画被 prefers-reduced-motion 关掉、或 CSS 未加载时，标志依然完整可见，
+   不能让用户看到一块空白。动画只是从 100 → 0 的过场。 */
+.logo-mark-draw {
+  stroke-dasharray: 100;
+  stroke-dashoffset: 0;
+  animation: logo-mark-draw 2.4s cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+
+@keyframes logo-mark-draw {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-mark-draw {
+    animation: none;
+  }
+}
