@@ -124,6 +124,8 @@ export interface ProjectIteration {
 export interface ProjectItem {
   name: string;
   meta: string;
+  /** 在线演示入口（v2.4.4）：nianan.site 生成 SSO ticket 免登录跳转对应项目 */
+  demo?: { target: 'rag' | 'office' };
   summary: string;
   tags: string[];
   stack: string[];
@@ -136,6 +138,7 @@ export const projects: ProjectItem[] = [
   {
     name: '知衡引擎 · 企业私有知识问答平台',
     meta: '个人项目 · RAG 全栈 · 2026',
+    demo: { target: 'rag' },
     summary:
       '面向企业制度与零售经营文档的可信问答：答案能反查到原文切片，检索前先过权限，答不出敢拒答。检索调参不靠感觉——40 条人工标注黄金集加三项指标做成上线门禁，混合检索 A/B 没跑赢纯向量就默认关闭。',
     tags: [
@@ -354,6 +357,7 @@ export const projects: ProjectItem[] = [
     // docs/分析-2026-10-23-销售总结任务复盘.md、backend/app/core/config.py 的 rag_service_username、
     // backend/app/orchestration/validator.py（不阻断、只标注）。
     name: '序域协作 · 多 Agent 办公任务编排平台',
+    demo: { target: 'office' },
     meta: '个人项目 · LangGraph · 2026',
     summary:
       '销售要一份上海今年的订单明细，再写成带趋势图的总结。编排走规划、路由、ReAct 或 DAG，过程用 NDJSON 流出来；任务状态落库可暂停续跑，Token 预扣结算有账本。记忆里的「制度」曾经把纯取数拐进知识库检索；意图只看本轮原文之后，同一条任务跑成 236 行明细、一张趋势图、一份嵌图文档。',

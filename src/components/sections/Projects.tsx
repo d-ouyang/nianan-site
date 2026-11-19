@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { projects, type ProjectItem } from '@/content/profile';
+import { enterDemo } from '@/lib/sso';
 import SectionFrame from '@/components/sections/SectionFrame';
 
 /** 把 **加粗** 片段渲染成 <strong>，其余原样输出。 */
@@ -100,6 +101,19 @@ function ProjectCard({ project }: { project: ProjectItem }) {
               ))}
             </ol>
           </DetailBlock>
+
+          {project.demo && (
+            <DetailBlock title="在线演示">
+              <button
+                type="button"
+                onClick={() => enterDemo(project.demo!.target)}
+                className="rounded-full bg-accent/10 px-4 py-2 text-sm text-accent transition-colors hover:bg-accent/20"
+              >
+                进入{project.demo.target === 'rag' ? '知衡引擎问答' : '序域协作办公'}演示（免登录） →
+              </button>
+              <p className="mt-2 text-xs text-faint">使用演示账号自动登录，配额受限，无需注册。</p>
+            </DetailBlock>
+          )}
 
           <DetailBlock title="关键迭代与量化收益">
             <ul className="grid gap-3">
