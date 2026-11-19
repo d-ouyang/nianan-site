@@ -8,7 +8,7 @@ export const profile = {
   /** 邮箱 ding.ouyang 的写法：名在前，姓在后。 */
   nameEn: 'Ding Ouyang',
   site: 'nianan.site',
-  role: 'AI 应用 / Agent 工程师（前端出身）',
+  role: 'AI 应用 / Agent 工程师',
 };
 
 /** 年限和总时段写在时间轴上方，不记到某一家公司头上。 */
@@ -136,11 +136,11 @@ export interface ProjectItem {
 
 export const projects: ProjectItem[] = [
   {
-    name: '知衡引擎 · 企业私有知识问答平台',
-    meta: '个人项目 · RAG 全栈 · 2026',
+    name: '知衡引擎 · 企业私有知识治理与可信问答',
+    meta: '锅圈食品 · AI 项目工程实践',
     demo: { target: 'rag' },
     summary:
-      '面向企业制度与零售经营文档的可信问答：答案能反查到原文切片，检索前先过权限，答不出敢拒答。检索调参不靠感觉——40 条人工标注黄金集加三项指标做成上线门禁，混合检索 A/B 没跑赢纯向量就默认关闭。',
+      '面向企业制度、零售经营和内部知识文件的可追溯问答，覆盖入库、检索、权限和审计。大文档解析走队列，不卡住上传；表格按行组切开，答案能回到原文。40 条人工标注评测集是上线门禁，混合检索没跑赢纯向量就默认关掉。',
     tags: [
       'LangChain LCEL',
       'Recall / MRR / Refusal',
@@ -166,6 +166,14 @@ export const projects: ProjectItem[] = [
       { label: '部署形态', value: '6 容器一键起停' },
     ],
     highlights: [
+      {
+        title: '异步入库，上传不再干等',
+        body: '大文档同步解析会把上传请求卡住。API、认证、解析 Worker 和检索拆开，解析和向量化进 Redis 队列，失败自动重试。前端提交后就能离开，入库状态在后台走完。',
+      },
+      {
+        title: '表格结构不能切碎',
+        body: '制度 PDF 里的表格一按字数切开，跨行跨列就变成碎片，检索回来对不上。按标题层级和表格行组切分；复杂表格走 MinerU，失败再回退默认通道。表格题要能答，也要能回到那一张表。',
+      },
       {
         title: '切分先于调参',
         body: '制度类文档的答案单位是「条款」和「表格行组」，按固定字数滑窗会把条款切断——切断了就检索不回来。所以先做标题层级 + 表格行组的结构感知切分，再谈检索模型，这一步对效果的影响比换模型大。切片带稳定 chunk_id，答案里的引用直接反查到原文那一段。',
@@ -268,99 +276,14 @@ export const projects: ProjectItem[] = [
     ],
   },
   {
-    name: '锅圈商城多端小程序',
-    meta: '公司项目 · UniApp 多端 · 2021 – 至今',
-    summary:
-      '锅圈食汇（02517.HK）核心 C 端商城小程序。一套代码交付微信、支付宝、抖音、App、i锅圈五个端，并以此为模板裂变出锅圈小炒等独立业态；覆盖门店定位、加购、拼团 / 秒杀 / 接龙、下单结算、优惠券、积分、会员等级全链路零售场景。大促主包降 44%，TTI 降一半。',
-    tags: ['UniApp 多端', '条件编译', '主包瘦身', 'WebSocket', 'AI 点单', '神策埋点'],
-    stack: [
-      'Vue 3 + TypeScript + UniApp 3.0 + Pinia + Vite',
-      'UnoCSS（小程序 rpx / H5 rem 双预设）+ SCSS + uView',
-      '阿里云 NLS 流式 TTS + 微信同声传译插件（语音点单）',
-      '自研 Vite 插件：componentPlaceholder 自动注入、manualChunks 分割',
-      '多分支管理：master / toutiao / xiao_chao / b_mall / f2b / igq / songhe 等 8 条业务分支',
-    ],
-    metrics: [
-      { label: '主包体积', value: '1.96→1.10 MB' },
-      { label: '首屏 TTI', value: '3.2→1.4 s' },
-      { label: '交付端', value: '5 端一套代码' },
-    ],
-    highlights: [
-      {
-        title: '首页首屏优化：扛住大流量下的首屏体验',
-        body: '首页要同时拉门店、商品瀑布流、活动（拼团 / 秒杀 / 接龙）、优惠券、推荐等十几个模块，大促峰值更高。优化分三层：**分包与预加载**——preloadRule 在进首页前静默预载 pages-async / pages-market 等分包，点进详情不再等分包下载；**主包瘦身**——manualChunks 把 router/request/stores/commons 合并成 common chunk，easycom + 自研插件让组件按需加载、占位不报错，主包不再被大组件顶到 2MB 红线；**请求与渲染**——多模块走聚合 / 并发控制（Promise.all 收口、失败降级兜底），本地缓存 + 失效刷新减少重复请求，图片懒加载接 CDN，长列表用分页折叠（ifFold + pageSize）分批渲染避免一次上万个节点卡死低端机。**优化前后（微信开发者工具 Audits + 大促峰值线上抽样）**：主包体积 1.96 MB → 1.10 MB（降 44%，彻底脱离 2MB 限制，大促不再卡发版）；首屏可交互时间 TTI 3.2 s → 1.4 s（降 56%）；进详情页分包等待 ~800 ms → 0 ms（命中预加载）；首页请求数 17 → 6 个（聚合 + 缓存，降 65%）；首屏白屏率（大促峰值）8.7% → 0.9%（骨架屏 + 预载兜底）。',
-      },
-      {
-        title: '多分支 + 条件编译双轨多端架构',
-        body: '多条业务分支隔离业态逻辑、共用核心代码库，条件编译覆盖 JS、Vue 模板、SCSS、pages.json 路由、manifest 五层。平台差异收敛到 getPlatform() / generatePayParams() / getNavMenuInfo() 统一接口，上层业务零感知。',
-      },
-      {
-        title: '支付与登录四端统一封装',
-        body: '微信五参数调起、抖音 service:5 + orderInfo、支付宝交易号直传、App 按 provider 区分——全部收进 generatePayParams()；微信 wx.login、抖音 tt.login、App 原生登录在 authorization 页条件编译出统一入口。',
-      },
-      {
-        title: '自研 Vite 插件 + easycom 四规则，分包零配置',
-        body: 'generateBundle 阶段扫描所有产物 .json 的 usingComponents，检测到异步分包引用即自动注入 componentPlaceholder 占位配置——开发者按 easycom 规则（^g-a- / ^g-s- / ^g-m- / ^u-）零 import 直接用标签，插件兜底避免加载失败；manualChunks 再把公共依赖合并成 common chunk 瘦主包。',
-      },
-      {
-        title: 'AI 点单：对话式购物全链路',
-        body: 'WebSocket 单例客户端双定时器心跳（10s ping + 3s pong 超时窗口检测半连接），页面关闭经 getCurrentPages() 检测自动销毁连接；阿里云 NLS 流式 TTS 全链路不落盘（Base64 解码三级降级兼容红米旧机），PCM 边收边播靠 _nextStartTime 无缝拼接；24 种意图 + 意图继承快照，结算卡 6 类异常商品硬失效 / 软异常分流。',
-      },
-      {
-        title: '「一起吃」共享购物车',
-        body: '共享购物车用 WebSocket 同步。发起人点结算就把任务锁进「提交订单中」，别人不能再加购，回退时解锁。加购覆盖普通品、套餐、换购、赠品，界面先动，请求失败再把数量滚回去。',
-      },
-      {
-        title: 'CMS 配置化渲染，运营自助上活动页',
-        body: '配套 gqsh-cms-ui-h5 组件库 JSON Schema 驱动渲染：页面结构与配置数据解耦、按组件 ID 分发，支持热更新不发版；10 类可配置组件（商品 / 优惠券 / 轮播 / 锚点导航 / 倒计时等），锚点导航用 IntersectionObserver 自动高亮——运营在后台拖拽即生成预制菜活动会场。',
-      },
-      {
-        title: '数据埋点：默认 + 自定义 + 可视区域曝光三层覆盖',
-        body: '基于神策 UniApp SDK 做全链路埋点，三层覆盖：**默认埋点（autoTrack 全埋点）**——appLaunch / appShow / pageShow / mpClick / pageLeave 等生命周期与点击自动采集，零侵入；**自定义埋点**——在 initSensors 里封装几十个语义化事件（ClickPageIcon、BannerClick、KingKong_position、AddToShoppingCart、BuyNow、ReceiveDiscount、LoginResult 等），几乎全是点击交互类，用短方法名（sa.cpi / sa.bc / sa.atsc）收敛调用；**可视区域曝光埋点（exposure/index.js）**——IntersectionObserver 监听元素进入视口（阈值 0.6 且停留 1s 才上报），用户真实浏览才埋点、没浏览不埋，区分商品（ProductExposure）与运营位（ExposureBannerClick）曝光，解决「渲染了但没看见」的虚假曝光。',
-      },
-    ],
-    iterations: [
-      {
-        version: '多端',
-        date: '持续',
-        title: '一套代码五端交付',
-        gain: '微信 / 支付宝 / 抖音 / App / i锅圈同仓交付，多端维护成本从「五套」降为「一套 + 条件编译」',
-      },
-      {
-        version: '裂变',
-        date: '持续',
-        title: '模板化复制业态',
-        gain: '以 xiao_chao/master 分支孵化锅圈小炒预制菜平台，B2C、F2B、宋河等业态同源裂变',
-      },
-      {
-        version: '首屏',
-        date: '持续',
-        title: '首页首屏优化',
-        gain: 'preloadRule 分包预加载 + manualChunks 主包瘦身 + 请求聚合缓存，大促不再因包体超限卡发版、白屏基本消除',
-      },
-      {
-        version: 'AI',
-        date: '持续',
-        title: '对话内一步下单',
-        gain: '传统「购物车 → 结算页 → 支付页」三步压缩为对话内一步，语音输入 + 播报覆盖做饭场景',
-      },
-      {
-        version: '社交',
-        date: '持续',
-        title: '拼单裂变拉新',
-        gain: '多人聚餐「各点各的」变共享购物车并行加购，微信分享链接入队，提升社交电商转化',
-      },
-    ],
-  },
-  {
     // 数字来源：office-multiagent/docs/RELEASES.md（p6.29 校验器、p6.30 真机 236 行、p6.32 pytest 361 passed）、
     // docs/分析-2026-10-23-销售总结任务复盘.md、backend/app/core/config.py 的 rag_service_username、
     // backend/app/orchestration/validator.py（不阻断、只标注）。
-    name: '序域协作 · 多 Agent 办公任务编排平台',
+    name: '序域协作 · 多 Agent 办公任务编排与执行',
     demo: { target: 'office' },
-    meta: '个人项目 · LangGraph · 2026',
+    meta: '锅圈食品 · AI 项目工程实践',
     summary:
-      '销售要一份上海今年的订单明细，再写成带趋势图的总结。编排走规划、路由、ReAct 或 DAG，过程用 NDJSON 流出来；任务状态落库可暂停续跑，Token 预扣结算有账本。记忆里的「制度」曾经把纯取数拐进知识库检索；意图只看本轮原文之后，同一条任务跑成 236 行明细、一张趋势图、一份嵌图文档。',
+      '对话里做订单查询、销售报告和图表。简单任务单 Agent 直达，复杂任务拆成 DAG：同一层并行，上游结果往下传，一个节点失败不拖垮整层。任务状态落库，可以暂停再续跑；Token 先预扣再结算。同一条销售任务交出 236 行明细、一张趋势图和一份嵌图文档。',
     tags: [
       'LangGraph',
       '多 Agent',
@@ -408,6 +331,10 @@ export const projects: ProjectItem[] = [
         body: '终答里的硬数字（千分位、万/亿、小数）和本次工具观察、任务原文对账。对不上就发 result_validator 事件并记 WARNING，不另调模型、不重跑、不把回答拦下来。小整数和用户自己写在题里的数字不参与，避免满屏误报。开关在 RESULT_VALIDATION。',
       },
       {
+        title: '新能力默认关掉',
+        body: '业务工具走统一契约，调用范围收死。新能力包默认禁用，配好说明再灰度打开；没做完的功能不会进主流程。未知技能直接回落，不猜。',
+      },
+      {
         title: '知识库调用仍用服务号',
         body: '办公助手和 RAG 共用网关的身份头，但 rag_retrieve 注入的用户名仍是配置里的 office-service，不是当前办公用户。用量和溯源会记到服务号上。这是已知债：先在管理端把不一致标出来，下一步再改成真实用户名。不把它写成已经按人隔离。',
       },
@@ -432,6 +359,136 @@ export const projects: ProjectItem[] = [
         version: 'p5.1 – p5.4',
         title: '可靠性加固',
         gain: 'LLM 重试补 429/500 退避、DAG 层内失败隔离（单点失败不打断整层，取消信号仍上抛）、工具退避生效、checkpointer 可选 sqlite 真续跑。回归基线走到 450+ 全绿。',
+      },
+    ],
+  },
+  {
+    name: '锅圈商城多端小程序',
+    meta: '公司项目 · UniApp 多端 · 2021 – 至今',
+    summary:
+      '锅圈食汇（02517.HK）核心 C 端商城。一套代码交付微信、支付宝、App，并裂变出独立业态；门店定位、加购、拼团 / 秒杀、下单结算、优惠券和会员都在这条链上。主包从 1.96MB 收到 1.10MB，首屏 TTI 从 3.2s 降到 1.4s。AI 点单覆盖 24 种意图，对话里就能下单。',
+    tags: ['UniApp 多端', '条件编译', '主包瘦身', '四端支付登录', 'AI 点单', '神策埋点'],
+    stack: [
+      'Vue 3 + TypeScript + UniApp 3.0 + Pinia + Vite',
+      'UnoCSS（小程序 rpx / H5 rem 双预设）+ SCSS + uView',
+      '阿里云 NLS 流式 TTS + 微信同声传译插件（语音点单）',
+      '自研 Vite 插件：componentPlaceholder 自动注入、manualChunks 分割',
+      '多分支管理：master / toutiao / xiao_chao / b_mall / f2b / igq / songhe 等 8 条业务分支',
+    ],
+    metrics: [
+      { label: '主包体积', value: '1.96→1.10 MB' },
+      { label: '首屏 TTI', value: '3.2→1.4 s' },
+      { label: '交付端', value: '微信 / 支付宝 / App' },
+    ],
+    highlights: [
+      {
+        title: '首页首屏优化：扛住大流量下的首屏体验',
+        body: '首页要同时拉门店、商品瀑布流、活动（拼团 / 秒杀 / 接龙）、优惠券、推荐等十几个模块，大促峰值更高。优化分三层：**分包与预加载**——preloadRule 在进首页前静默预载 pages-async / pages-market 等分包，点进详情不再等分包下载；**主包瘦身**——manualChunks 把 router/request/stores/commons 合并成 common chunk，easycom + 自研插件让组件按需加载、占位不报错，主包不再被大组件顶到 2MB 红线；**请求与渲染**——多模块走聚合 / 并发控制（Promise.all 收口、失败降级兜底），本地缓存 + 失效刷新减少重复请求，图片懒加载接 CDN，长列表用分页折叠（ifFold + pageSize）分批渲染避免一次上万个节点卡死低端机。**优化前后（微信开发者工具 Audits + 大促峰值线上抽样）**：主包体积 1.96 MB → 1.10 MB（降 44%，彻底脱离 2MB 限制，大促不再卡发版）；首屏可交互时间 TTI 3.2 s → 1.4 s（降 56%）；进详情页分包等待 ~800 ms → 0 ms（命中预加载）；首页请求数 17 → 6 个（聚合 + 缓存，降 65%）；首屏白屏率（大促峰值）8.7% → 0.9%（骨架屏 + 预载兜底）。',
+      },
+      {
+        title: '多分支 + 条件编译双轨多端架构',
+        body: '多条业务分支隔离业态逻辑、共用核心代码库，条件编译覆盖 JS、Vue 模板、SCSS、pages.json 路由、manifest 五层。平台差异收敛到 getPlatform() / generatePayParams() / getNavMenuInfo() 统一接口，上层业务零感知。',
+      },
+      {
+        title: '支付与登录四端统一封装',
+        body: '微信五参数调起、抖音 service:5 + orderInfo、支付宝交易号直传、App 按 provider 区分——全部收进 generatePayParams()；微信 wx.login、抖音 tt.login、App 原生登录在 authorization 页条件编译出统一入口。',
+      },
+      {
+        title: '自研 Vite 插件 + easycom 四规则，分包零配置',
+        body: 'generateBundle 阶段扫描所有产物 .json 的 usingComponents，检测到异步分包引用即自动注入 componentPlaceholder 占位配置——开发者按 easycom 规则（^g-a- / ^g-s- / ^g-m- / ^u-）零 import 直接用标签，插件兜底避免加载失败；manualChunks 再把公共依赖合并成 common chunk 瘦主包。',
+      },
+      {
+        title: 'AI 点单：对话式购物全链路',
+        body: 'WebSocket 单例客户端双定时器心跳（10s ping + 3s pong 超时窗口检测半连接），页面关闭经 getCurrentPages() 检测自动销毁连接；阿里云 NLS 流式 TTS 全链路不落盘（Base64 解码三级降级兼容红米旧机），PCM 边收边播靠 _nextStartTime 无缝拼接；24 种意图 + 意图继承快照，结算卡 6 类异常商品硬失效 / 软异常分流。',
+      },
+      {
+        title: '「一起吃」共享购物车',
+        body: '共享购物车用 WebSocket 同步。发起人点结算就把任务锁进「提交订单中」，别人不能再加购，回退时解锁。加购覆盖普通品、套餐、换购、赠品，界面先动，请求失败再把数量滚回去。',
+      },
+      {
+        title: '数据埋点：默认 + 自定义 + 可视区域曝光三层覆盖',
+        body: '基于神策 UniApp SDK 做全链路埋点，三层覆盖：**默认埋点（autoTrack 全埋点）**——appLaunch / appShow / pageShow / mpClick / pageLeave 等生命周期与点击自动采集，零侵入；**自定义埋点**——在 initSensors 里封装几十个语义化事件（ClickPageIcon、BannerClick、KingKong_position、AddToShoppingCart、BuyNow、ReceiveDiscount、LoginResult 等），几乎全是点击交互类，用短方法名（sa.cpi / sa.bc / sa.atsc）收敛调用；**可视区域曝光埋点（exposure/index.js）**——IntersectionObserver 监听元素进入视口（阈值 0.6 且停留 1s 才上报），用户真实浏览才埋点、没浏览不埋，区分商品（ProductExposure）与运营位（ExposureBannerClick）曝光，解决「渲染了但没看见」的虚假曝光。',
+      },
+    ],
+    iterations: [
+      {
+        version: '多端',
+        date: '持续',
+        title: '一套代码五端交付',
+        gain: '微信 / 支付宝 / 抖音 / App / i锅圈同仓交付，多端维护成本从「五套」降为「一套 + 条件编译」',
+      },
+      {
+        version: '裂变',
+        date: '持续',
+        title: '模板化复制业态',
+        gain: '以 xiao_chao/master 分支孵化锅圈小炒预制菜平台，B2C、F2B、宋河等业态同源裂变',
+      },
+      {
+        version: '首屏',
+        date: '持续',
+        title: '首页首屏优化',
+        gain: 'preloadRule 分包预加载 + manualChunks 主包瘦身 + 请求聚合缓存，大促不再因包体超限卡发版、白屏基本消除',
+      },
+      {
+        version: 'AI',
+        date: '持续',
+        title: '对话内一步下单',
+        gain: '传统「购物车 → 结算页 → 支付页」三步压缩为对话内一步，语音输入 + 播报覆盖做饭场景',
+      },
+      {
+        version: '社交',
+        date: '持续',
+        title: '拼单裂变拉新',
+        gain: '多人聚餐「各点各的」变共享购物车并行加购，微信分享链接入队，提升社交电商转化',
+      },
+    ],
+  },
+  {
+    name: '锅圈 CMS · 多业态活动页搭建',
+    meta: '锅圈食品 · 营销页面搭建中台',
+    summary:
+      '给运营用的活动页搭建台，换掉旧的 Vue 2 楼层配置后台。B 端编辑器、C 端 H5、物料 Schema 和公共库拆成四个子仓，用 pnpm workspace 和 git submodule 放在一起。活动页从排期改版，变成运营自己搭、审核后再发。',
+    tags: ['JSON Schema', '拖拽画布', '物料复用', 'qiankun', '热区编辑', 'pnpm workspace'],
+    stack: [
+      'B 端：Vue 3 + TypeScript + Pinia + Element Plus + vuedraggable',
+      'C 端：Vant 4，按 pageCode 渲染正式页；编辑器里同一套组件做实时预览',
+      '物料：独立 Schema 仓，json5 手写，脚本编译成 JSON Schema',
+      '集成：qiankun 子应用，UMD + 动态 publicPath，可嵌基座也可单独跑',
+      '工程：pnpm workspace、git submodule、unplugin-vue-components 按需引入、husky + commitlint',
+    ],
+    metrics: [
+      { label: '物料', value: '12 类 · 28 变体' },
+      { label: '子仓', value: '编辑器 / H5 / Schema / 公共库' },
+      { label: '发布', value: '搭建后审核上线' },
+    ],
+    highlights: [
+      {
+        title: '表单跟着 Schema 走',
+        body: '物料属性不写死在编辑器里，放在独立 Schema 仓：json5 手写，脚本编译成 JSON Schema。拖进画布就按 Schema 画出配置表单，保存前逐个组件校验，配错了提交不出去。',
+      },
+      {
+        title: '一套组件，编辑和正式页共用',
+        body: 'C 端组件库在 B 端用动态组件做预览，用 scene 区分是在搭还是在看。正式页按 pageCode 渲染同一套组件，两边长得一样，不用各维护一份。',
+      },
+      {
+        title: '画布上拖，热区不用手填坐标',
+        body: '物料从面板 clone 进 375px 的手机框，点一下弹出配置。图片热区用 Canvas 自己画：框选、缩放，再绑跳转，不用在表单里填左上角和宽高。',
+      },
+      {
+        title: '嵌进基座，也能自己跑',
+        body: 'qiankun 子应用走 UMD 和动态 publicPath。审核流用全局状态和自定义事件跟基座通信。基座没起来时，编辑器仍能独立打开。',
+      },
+    ],
+    iterations: [
+      {
+        version: '替换',
+        title: '楼层后台换掉',
+        gain: '旧 Vue 2 楼层配置里的富文本和选品，改成 Vue 3 + JSON Schema。配置对不对，提交前由 Schema 校验拦住。',
+      },
+      {
+        version: '物料',
+        title: '12 类 28 个变体',
+        gain: '活动页组件沉淀成物料。运营拖进画布、填 Schema 表单、走审核，再发到多端小程序码，不再等一次开发排期。',
       },
     ],
   },

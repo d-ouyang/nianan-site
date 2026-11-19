@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { motion, useInView, useReducedMotion } from 'motion/react';
 import { projects, type ProjectItem } from '@/content/profile';
 import { enterDemo } from '@/lib/sso';
 import SectionFrame from '@/components/sections/SectionFrame';
+
+const REVEAL = [0.16, 1, 0.3, 1] as const;
 
 /** 把 **加粗** 片段渲染成 <strong>，其余原样输出。 */
 function Bold({ text }: { text: string }) {
@@ -29,15 +32,43 @@ function DetailBlock({ title, children }: { title: string; children: React.React
   );
 }
 
-function ProjectCard({ project }: { project: ProjectItem }) {
+function ProjectCard({
+  project,
+  index,
+  shown,
+}: {
+  project: ProjectItem;
+  index: number;
+  shown: boolean;
+}) {
   const [open, setOpen] = useState(false);
+  const reduce = useReducedMotion();
+  const play = Boolean(reduce || shown);
 
   return (
-    <li
-      className={`rounded-2xl bg-canvas/35 backdrop-blur-sm transition-colors ${
+    <motion.li
+      className={`relative rounded-2xl bg-canvas/35 backdrop-blur-sm ${
         open ? 'px-6 py-6 lg:col-span-2' : 'px-6 py-6'
       }`}
+      initial={reduce ? false : { opacity: 0, y: 32 }}
+      animate={play ? { opacity: 1, y: 0 } : { opacity: 0, y: 32 }}
+      transition={
+        reduce
+          ? { duration: 0 }
+          : { duration: 0.72, delay: shown ? 0.06 + index * 0.12 : 0, ease: REVEAL }
+      }
     >
+      <motion.span
+        aria-hidden
+        className="pointer-events-none absolute inset-x-6 top-0 h-px origin-left bg-accent"
+        initial={false}
+        animate={{ scaleX: play ? 1 : 0 }}
+        transition={
+          reduce
+            ? { duration: 0 }
+            : { duration: 0.85, delay: shown ? 0.14 + index * 0.12 : 0, ease: REVEAL }
+        }
+      />
       <button
         type="button"
         onClick={() => setOpen(!open)}
@@ -46,7 +77,10 @@ function ProjectCard({ project }: { project: ProjectItem }) {
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="font-mono text-xs text-accent">{project.meta}</p>
+            <p className="font-mono text-xs text-accent">
+              <span className="mr-2 text-faint">{String(index + 1).padStart(2, '0')}</span>
+              {project.meta}
+            </p>
             <h3 className="mt-3 text-xl font-medium tracking-tight">{project.name}</h3>
           </div>
           <span className="mt-1 shrink-0 font-mono text-xs text-faint">{open ? '— 收起' : '+ 展开'}</span>
@@ -130,17 +164,22 @@ function ProjectCard({ project }: { project: ProjectItem }) {
           </DetailBlock>
         </div>
       )}
-    </li>
+    </motion.li>
   );
 }
 
 export default function Projects() {
+  const listRef = useRef<HTMLUListElement>(null);
+  const reduce = useReducedMotion();
+  const inView = useInView(listRef, { once: true, amount: 0.12 });
+  const shown = Boolean(reduce || inView);
+
   return (
     <SectionFrame id="projects" eyebrow="Projects" title="项目">
-      <p className="mb-6 text-sm text-faint">三个项目。点开卡片看技术栈、规模数字、亮点难点与逐版量化收益。</p>
-      <ul className="grid gap-4 lg:grid-cols-2">
-        {projects.map((project) => (
-          <ProjectCard key={project.name} project={project} />
+      <p className="mb-6 text-sm text-faint">四个项目。点开卡片看技术栈、规模数字、亮点难点与逐版量化收益。</p>
+      <ul ref={listRef} className="grid gap-4 lg:grid-cols-2">
+        {projects.map((project, index) => (
+          <ProjectCard key={project.name} project={project} index={index} shown={shown} />
         ))}
       </ul>
     </SectionFrame>
